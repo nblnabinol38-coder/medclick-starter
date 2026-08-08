@@ -1,0 +1,354 @@
+
+:root {
+  --clinic-bg: #eef8f8;
+  --clinic-bg-2: #f8fcfc;
+  --clinic-panel: rgba(255,255,255,.88);
+  --clinic-border: rgba(15,118,110,.12);
+  --clinic-text: #0f2230;
+  --clinic-muted: #64788a;
+  --clinic-teal: #0f9f98;
+  --clinic-cyan: #21c8df;
+  --clinic-blue: #3b82f6;
+  --clinic-green: #10b981;
+}
+
+.patient-clinic-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 14% 8%, rgba(34,211,238,.16), transparent 22%),
+    radial-gradient(circle at 88% 12%, rgba(16,185,129,.11), transparent 20%),
+    linear-gradient(180deg,#f7fcfc 0%,#eef8f8 46%,#f8fbfd 100%) !important;
+  color: var(--clinic-text) !important;
+}
+
+.patient-clinic-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(13,148,136,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,148,136,.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.6), transparent 82%);
+  opacity: .7;
+}
+
+.patient-clinic-shell::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  left: 50%;
+  bottom: -170px;
+  width: min(1200px, 92vw);
+  height: 360px;
+  transform: translateX(-50%) perspective(600px) rotateX(67deg);
+  transform-origin: center bottom;
+  pointer-events: none;
+  border-radius: 44px;
+  background:
+    linear-gradient(rgba(59,130,246,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20,184,166,.05) 1px, transparent 1px),
+    linear-gradient(180deg,rgba(255,255,255,.72),rgba(217,244,242,.55));
+  background-size: 34px 34px, 34px 34px, 100% 100%;
+  box-shadow: 0 -35px 100px rgba(15,118,110,.08);
+}
+
+.patient-clinic-shell > * {
+  z-index: 1;
+}
+
+.patient-clinic-shell > section {
+  position: relative;
+  min-width: 0;
+}
+
+.patient-clinic-shell > aside {
+  /* Do not set position here.
+     Tailwind's `fixed` must remain in control on desktop. */
+  z-index: 40;
+}
+
+.patient-clinic-shell header {
+  background: rgba(255,255,255,.84) !important;
+  border-color: rgba(15,118,110,.11) !important;
+  box-shadow: 0 10px 30px rgba(15,23,42,.04);
+}
+
+.patient-clinic-shell aside {
+  background:
+    radial-gradient(circle at 25% 0%, rgba(34,211,238,.14), transparent 24%),
+    linear-gradient(180deg,#06233a 0%,#07344a 48%,#06253a 100%) !important;
+  box-shadow: 18px 0 50px rgba(6,52,74,.10) !important;
+}
+
+.patient-clinic-shell .bg-white,
+.patient-clinic-shell .bg-white\/80,
+.patient-clinic-shell .bg-white\/90 {
+  background-color: rgba(255,255,255,.92) !important;
+}
+
+.patient-clinic-shell .text-slate-950,
+.patient-clinic-shell .text-slate-900,
+.patient-clinic-shell .text-slate-800,
+.patient-clinic-shell .text-slate-700 {
+  color: #102331 !important;
+}
+
+.patient-clinic-shell .text-slate-600,
+.patient-clinic-shell .text-slate-500,
+.patient-clinic-shell .text-slate-400 {
+  color: #667d8d !important;
+}
+
+.patient-clinic-shell .border-slate-100,
+.patient-clinic-shell .border-slate-200,
+.patient-clinic-shell .border-slate-300 {
+  border-color: rgba(30,106,117,.12) !important;
+}
+
+.patient-clinic-shell input,
+.patient-clinic-shell select,
+.patient-clinic-shell textarea {
+  background: rgba(255,255,255,.94) !important;
+  color: #102331 !important;
+  border-color: rgba(15,118,110,.15) !important;
+}
+
+.patient-clinic-shell input:focus,
+.patient-clinic-shell select:focus,
+.patient-clinic-shell textarea:focus {
+  border-color: rgba(13,148,136,.38) !important;
+  box-shadow: 0 0 0 4px rgba(20,184,166,.07);
+}
+
+.clinic-glass {
+  border: 1px solid rgba(15,118,110,.12);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.94),rgba(247,253,252,.88));
+  box-shadow:
+    0 24px 70px rgba(15,23,42,.07),
+    inset 0 1px 0 rgba(255,255,255,.9);
+  backdrop-filter: blur(18px);
+}
+
+.clinic-scene {
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+  border-radius: 30px;
+  border: 1px solid rgba(15,118,110,.11);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.94),rgba(237,250,248,.92));
+  box-shadow: 0 28px 90px rgba(15,118,110,.09);
+}
+
+.clinic-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 20%, rgba(34,211,238,.13), transparent 22%),
+    radial-gradient(circle at 82% 30%, rgba(16,185,129,.12), transparent 22%);
+  pointer-events: none;
+}
+
+.clinic-window {
+  position: absolute;
+  right: 7%;
+  top: 11%;
+  width: 34%;
+  height: 47%;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 8px solid rgba(255,255,255,.9);
+  background:
+    linear-gradient(180deg,#c8f2f5 0%,#ebfbfb 60%,#d9f3e7 61%,#bce9d4 100%);
+  box-shadow: 0 18px 45px rgba(15,118,110,.10);
+}
+
+.clinic-window::before,
+.clinic-window::after {
+  content: "";
+  position: absolute;
+  background: rgba(255,255,255,.72);
+}
+.clinic-window::before {
+  top: 0; bottom: 0; left: 50%; width: 5px; transform: translateX(-50%);
+}
+.clinic-window::after {
+  left: 0; right: 0; top: 52%; height: 5px; transform: translateY(-50%);
+}
+
+.clinic-cabinet {
+  position: absolute;
+  right: 4.5%;
+  bottom: 8%;
+  width: 39%;
+  height: 18%;
+  border-radius: 18px;
+  background: linear-gradient(180deg,#ffffff,#dfeeed);
+  box-shadow: 0 16px 35px rgba(15,23,42,.08);
+}
+
+.clinic-cabinet::before {
+  content: "+";
+  position: absolute;
+  left: 12%;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 900;
+  font-size: 22px;
+  background: linear-gradient(135deg,#10b981,#22c7d8);
+  box-shadow: 0 8px 22px rgba(16,185,129,.24);
+}
+
+.clinic-plant {
+  position: absolute;
+  right: 45%;
+  bottom: 10%;
+  width: 48px;
+  height: 64px;
+  border-radius: 8px 8px 18px 18px;
+  background: linear-gradient(180deg,#e7c9a0,#c49b6d);
+  box-shadow: 0 12px 25px rgba(15,23,42,.06);
+}
+.clinic-plant::before,
+.clinic-plant::after {
+  content: "";
+  position: absolute;
+  bottom: 48px;
+  width: 42px;
+  height: 54px;
+  border-radius: 70% 30% 70% 30%;
+  background: linear-gradient(160deg,#4ade80,#0f9f70);
+  transform-origin: bottom center;
+}
+.clinic-plant::before { left: -22px; transform: rotate(-32deg); }
+.clinic-plant::after { right: -21px; transform: scaleX(-1) rotate(-32deg); }
+
+.clinic-pulse {
+  animation: clinicPulse 3.4s ease-in-out infinite;
+}
+
+.clinic-float {
+  animation: clinicFloat 4.6s ease-in-out infinite;
+}
+
+.clinic-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.clinic-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: -30% auto -30% -40px;
+  width: 34px;
+  transform: rotate(14deg);
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,.82),transparent);
+  animation: clinicShimmer 5.8s ease-in-out infinite;
+}
+
+@keyframes clinicPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(20,184,166,.08); }
+  50% { box-shadow: 0 0 0 14px rgba(20,184,166,0); }
+}
+
+@keyframes clinicFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes clinicShimmer {
+  0%,35% { transform: translateX(-60px) rotate(14deg); opacity: 0; }
+  50% { opacity: .8; }
+  70%,100% { transform: translateX(620px) rotate(14deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clinic-pulse,
+  .clinic-float,
+  .clinic-shimmer::after {
+    animation: none !important;
+  }
+}
+
+
+/* =========================================================
+   V42 — LAYOUT GUARDRAILS
+   These rules prevent decorative layers from affecting flow.
+   ========================================================= */
+
+.patient-clinic-shell {
+  isolation: isolate;
+}
+
+.patient-clinic-shell > section {
+  width: 100%;
+}
+
+.patient-clinic-shell header {
+  position: sticky !important;
+  top: 0;
+  z-index: 30;
+}
+
+@media (min-width: 1024px) {
+  .patient-clinic-shell > aside.fixed {
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100vh;
+  }
+
+  .patient-clinic-shell > section.lg\:pl-\[228px\] {
+    padding-left: 228px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .patient-clinic-shell > section {
+    padding-left: 0 !important;
+  }
+
+  .clinic-scene {
+    min-height: auto;
+  }
+}
+
+/* Keep decorative clinic objects inside their own scene. */
+.clinic-scene > .clinic-window,
+.clinic-scene > .clinic-cabinet,
+.clinic-scene > .clinic-plant {
+  pointer-events: none;
+}
+
+/* Better readable widths and spacing on patient-facing pages. */
+.patient-clinic-shell .patient-content-grid {
+  width: 100%;
+  max-width: 1420px;
+  margin-inline: auto;
+}
+
+.patient-clinic-shell .clinic-glass,
+.patient-clinic-shell .clinic-scene {
+  contain: paint;
+}
+
+/* Avoid any accidental horizontal layout blowout. */
+.patient-clinic-shell iframe,
+.patient-clinic-shell img,
+.patient-clinic-shell video,
+.patient-clinic-shell canvas {
+  max-width: 100%;
+}

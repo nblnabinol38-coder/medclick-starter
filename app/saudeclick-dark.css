@@ -1,0 +1,142 @@
+
+:root {
+  color-scheme: dark;
+  --sc-bg: #050b14;
+  --sc-panel: #07111f;
+  --sc-panel-2: #0a1627;
+  --sc-card: rgba(10, 23, 40, .92);
+  --sc-card-2: rgba(12, 29, 49, .86);
+  --sc-border: rgba(78, 125, 170, .20);
+  --sc-text: #f8fbff;
+  --sc-muted: #8ea2b8;
+  --sc-cyan: #17d7ff;
+  --sc-blue: #278cff;
+  --sc-teal: #13d8b4;
+  --sc-green: #18e09b;
+  --sc-violet: #8f5cff;
+}
+
+html,
+body {
+  background: var(--sc-bg);
+}
+
+body {
+  color: var(--sc-text);
+}
+
+.saudeclick-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(23,215,255,.10), transparent 28%),
+    radial-gradient(circle at 88% 8%, rgba(39,140,255,.09), transparent 26%),
+    radial-gradient(circle at 60% 100%, rgba(143,92,255,.05), transparent 28%),
+    linear-gradient(180deg,#050b14 0%,#07101d 50%,#040912 100%) !important;
+  color: var(--sc-text) !important;
+}
+
+.saudeclick-shell .bg-white,
+.saudeclick-shell .bg-white\/90,
+.saudeclick-shell .bg-white\/80,
+.saudeclick-shell .bg-slate-50,
+.saudeclick-shell .bg-slate-100,
+.saudeclick-shell .bg-\[\#f5f8fc\] {
+  background-color: var(--sc-card) !important;
+}
+
+.saudeclick-shell .text-slate-950,
+.saudeclick-shell .text-slate-900,
+.saudeclick-shell .text-slate-800,
+.saudeclick-shell .text-slate-700 {
+  color: var(--sc-text) !important;
+}
+
+.saudeclick-shell .text-slate-600,
+.saudeclick-shell .text-slate-500,
+.saudeclick-shell .text-slate-400 {
+  color: var(--sc-muted) !important;
+}
+
+.saudeclick-shell .border-slate-100,
+.saudeclick-shell .border-slate-200,
+.saudeclick-shell .border-slate-200\/80,
+.saudeclick-shell .border-slate-300 {
+  border-color: var(--sc-border) !important;
+}
+
+.saudeclick-shell table thead,
+.saudeclick-shell .bg-slate-50\/80 {
+  background: rgba(8, 20, 35, .92) !important;
+}
+
+.saudeclick-shell input,
+.saudeclick-shell select,
+.saudeclick-shell textarea {
+  background: #06111f !important;
+  color: #eef8ff !important;
+  border-color: rgba(67,119,165,.28) !important;
+}
+
+.saudeclick-shell input::placeholder,
+.saudeclick-shell textarea::placeholder {
+  color: #627991 !important;
+}
+
+.saudeclick-shell .shadow-sm,
+.saudeclick-shell .shadow-md,
+.saudeclick-shell .shadow-lg,
+.saudeclick-shell .shadow-xl,
+.saudeclick-shell .shadow-2xl {
+  box-shadow: 0 18px 55px rgba(0,0,0,.34) !important;
+}
+
+.saudeclick-shell header {
+  background: rgba(4, 11, 20, .88) !important;
+  border-color: rgba(78,125,170,.20) !important;
+  box-shadow: 0 10px 35px rgba(0,0,0,.18);
+}
+
+.saudeclick-shell aside {
+  background:
+    radial-gradient(circle at 30% 10%, rgba(23,215,255,.08), transparent 25%),
+    linear-gradient(180deg,#020812 0%,#061323 55%,#020812 100%) !important;
+}
+
+.saudeclick-shell article,
+.saudeclick-shell section {
+  --tw-ring-color: rgba(23,215,255,.06);
+}
+
+.saudeclick-shell a,
+.saudeclick-shell button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.saudeclick-shell .sc-glow-card {
+  border: 1px solid rgba(44, 139, 219, .18);
+  background:
+    linear-gradient(180deg, rgba(10,25,43,.95), rgba(7,17,31,.95));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 18px 55px rgba(0,0,0,.28);
+}
+
+.saudeclick-shell .sc-neon-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(23,215,255,.55), transparent);
+  box-shadow: 0 0 18px rgba(23,215,255,.22);
+}
+
+@keyframes scAmbient {
+  0%,100% { filter: brightness(1); }
+  50% { filter: brightness(1.13); }
+}
+
+.saudeclick-shell .sc-live-ambient {
+  animation: scAmbient 4s ease-in-out infinite;
+}
+
+.saudeclick-shell ::selection {
+  background: rgba(23,215,255,.28);
+  color: white;
+}

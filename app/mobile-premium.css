@@ -1,0 +1,142 @@
+
+/* SaúdeClick V46 — Mobile Premium */
+:root {
+  --sc-bg: #f7fbfb;
+  --sc-surface: rgba(255,255,255,.96);
+  --sc-line: rgba(15,118,110,.12);
+  --sc-text: #112b35;
+  --sc-muted: #6d7f88;
+  --sc-teal: #0ea5a2;
+  --sc-teal-2: #14b8a6;
+  --sc-cyan: #22d3ee;
+  --sc-green: #10b981;
+  --sc-violet: #8b5cf6;
+}
+
+.mobile-premium-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(34,211,238,.10), transparent 28%),
+    radial-gradient(circle at 90% 10%, rgba(16,185,129,.08), transparent 24%),
+    linear-gradient(180deg,#fbfefe 0%,#f5fbfb 100%);
+  color: var(--sc-text);
+}
+
+.mobile-premium-shell .mobile-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255,255,255,.90);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(15,118,110,.08);
+}
+
+.mobile-premium-shell .mobile-card {
+  border: 1px solid rgba(15,118,110,.10);
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 18px 50px rgba(15,23,42,.06);
+}
+
+.mobile-premium-shell .tap-target {
+  min-height: 48px;
+}
+
+.mobile-premium-shell input,
+.mobile-premium-shell select,
+.mobile-premium-shell textarea {
+  font-size: 16px !important;
+}
+
+.mobile-premium-shell .mobile-bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 35;
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(15,118,110,.08);
+  padding-bottom: max(env(safe-area-inset-bottom), 8px);
+}
+
+@keyframes scFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes scPulse {
+  0%,100% { transform: scale(.92); opacity: .20; }
+  50% { transform: scale(1.18); opacity: .46; }
+}
+
+@keyframes scSweep {
+  0%,18% { transform: translateX(-90px) rotate(14deg); opacity: 0; }
+  38% { opacity: .8; }
+  65%,100% { transform: translateX(640px) rotate(14deg); opacity: 0; }
+}
+
+@keyframes scOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scSpinReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes scProgress {
+  0% { width: 12%; }
+  55% { width: 76%; }
+  100% { width: 92%; }
+}
+
+.sc-float { animation: scFloat 3.6s ease-in-out infinite; }
+.sc-pulse { animation: scPulse 3.2s ease-in-out infinite; }
+.sc-sweep { animation: scSweep 6s ease-in-out infinite; }
+
+.sc-submit-orbit {
+  animation: scOrbit 7s linear infinite;
+}
+.sc-submit-orbit-reverse {
+  animation: scSpinReverse 5s linear infinite;
+}
+.sc-submit-progress {
+  animation: scProgress 2.4s ease-in-out infinite alternate;
+}
+
+@media (min-width: 768px) {
+  .mobile-premium-shell .mobile-frame {
+    max-width: 760px;
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-float,
+  .sc-pulse,
+  .sc-sweep,
+  .sc-submit-orbit,
+  .sc-submit-orbit-reverse,
+  .sc-submit-progress {
+    animation: none !important;
+  }
+}
+
+
+@keyframes upaCardGlow {
+  0%,100% {
+    box-shadow: 0 16px 42px rgba(14,165,233,.06);
+  }
+  50% {
+    box-shadow: 0 24px 64px rgba(14,165,233,.13);
+  }
+}
+
+.upa-address-card {
+  animation: upaCardGlow 4.2s ease-in-out infinite;
+}
+
+@media (max-width: 639px) {
+  .upa-address-card {
+    border-radius: 20px;
+  }
+}
