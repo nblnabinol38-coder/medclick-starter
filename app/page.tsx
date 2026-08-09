@@ -6,7 +6,6 @@ import Benefits from "@/components/Benefits/Benefits";
 import Pricing from "@/components/Pricing/Pricing";
 import Security from "@/components/Security/Security";
 import Footer from "@/components/Footer/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
 
 const serviceSteps = [
   "Cadastro",
@@ -111,7 +110,6 @@ export default function Home() {
       </main>
 
       <Footer />
-      <WhatsAppButton />
     </>
   );
 }

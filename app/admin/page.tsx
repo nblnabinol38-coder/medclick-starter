@@ -733,7 +733,7 @@ export default function AdminPage() {
             </div>
             <div>
               <strong className="block text-[21px] font-black tracking-[-0.04em] text-white">
-                SaúdeClick
+                MedClick
               </strong>
               <span className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
                 Painel administrativo
@@ -765,7 +765,7 @@ export default function AdminPage() {
                   Administrador
                 </strong>
                 <span className="block truncate text-[9px] text-slate-500">
-                  admin@saudeclick.com
+                  admin@medclick.local
                 </span>
                 <span className="mt-1 inline-flex items-center gap-1 text-[9px] font-black text-emerald-400">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
@@ -1165,7 +1165,7 @@ export default function AdminPage() {
           <LiveActivityFeed requests={requests} />
 
           <footer className="pb-2 pt-1 text-center text-[8px] font-semibold text-slate-600">
-            © 2026 SaúdeClick — operação em tempo real.
+            © 2026 MedClick — operação em tempo real.
           </footer>
         </section>
       </div>

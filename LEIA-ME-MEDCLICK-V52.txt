@@ -1,0 +1,8 @@
+MEDCLICK V52 — WHATSAPP CORRIGIDO
+
+- Todos os links de ajuda/suporte revisados para +55 11 91862-2785.
+- Link wa.me: 5511918622785.
+- Footer corrigido (havia um número antigo).
+- Botão da tela cadastro/aguardando agora abre o WhatsApp correto.
+- Ajuda removida do painel administrativo.
+- Mantidas as correções de build da V51.

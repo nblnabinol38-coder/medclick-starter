@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import WhatsAppUltraButton from "@/components/WhatsAppUltraButton";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SaúdeClick — Atendimento médico digital",
+  title: "MedClick — Atendimento médico digital",
   description:
-    "Plataforma digital para solicitação e acompanhamento de documentos médicos.",
+    "Plataforma MedClick para solicitação e acompanhamento de atendimento e documentos médicos.",
 };
 
 type RootLayoutProps = Readonly<{
@@ -18,7 +19,10 @@ export default function RootLayout({
 }: RootLayoutProps) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        {children}
+        <WhatsAppUltraButton />
+      </body>
     </html>
   );
 }

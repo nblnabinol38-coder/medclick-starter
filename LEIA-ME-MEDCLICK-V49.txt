@@ -1,0 +1,21 @@
+MEDCLICK V49 — CORREÇÃO DE BUILD + AJUDA GLOBAL
+
+Alterações desta versão:
+- Corrigido erro TypeScript do status de pagamento no envio de comprovante.
+- Corrigido erro TypeScript dos cards de progresso da área do paciente (label/title).
+- WhatsApp de suporte: +55 11 91862-2785.
+- Botão Ajuda global nas páginas públicas, login, cadastro, paciente e solicitação.
+- Botão Ajuda NÃO aparece em nenhuma rota /admin.
+- Marca visível padronizada como MedClick.
+- E-mail exibido no painel administrativo ajustado para admin@medclick.local.
+
+Após substituir os arquivos, execute:
+  npm install
+  npx prisma generate
+  npx prisma db push
+  npx prisma db seed
+  npm run build
+
+IMPORTANTE:
+- Mantenha seu arquivo .env real no computador; ele não está incluído neste ZIP.
+- Na Vercel, mantenha DATABASE_URL, DIRECT_URL e SESSION_SECRET configurados.

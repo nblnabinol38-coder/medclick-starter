@@ -1,0 +1,15 @@
+MEDCLICK V50 - HOTFIX BUILD
+
+Correção desta versão:
+- app/paciente/page.tsx: PaymentMiniStep usava {label}, mas o parâmetro do componente é {title}.
+- Corrigido erro TypeScript TS2304: Cannot find name 'label'.
+- Mantidas as correções da V49.
+- Botão Ajuda continua removido do painel administrativo (/admin).
+- WhatsApp permanece configurado para +55 11 91862-2785.
+
+Após substituir o projeto, preserve seu .env e execute:
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run build

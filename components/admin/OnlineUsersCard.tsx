@@ -127,7 +127,7 @@ export default function OnlineUsersCard() {
             </strong>
           </div>
           <span className="mt-0.5 block text-[10px] text-slate-400">
-            Presença no SaudeClick
+            Presença no MedClick
           </span>
         </div>
 

@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 type ApprovalResponse = {
   success: boolean;
@@ -29,14 +30,6 @@ type ApprovalResponse = {
     name: string;
   };
 };
-
-export default function AguardandoLiberacaoPage() {
-  return (
-    <Suspense fallback={<WaitingPageFallback />}>
-      <AguardandoLiberacaoContent />
-    </Suspense>
-  );
-}
 
 function AguardandoLiberacaoContent() {
   const router = useRouter();
@@ -282,41 +275,16 @@ function AguardandoLiberacaoContent() {
             Voltar ao início
           </Link>
 
-          <button
-            type="button"
+          <a
+            href={supportWhatsAppUrl("Olá! Preciso de ajuda com meu cadastro no MedClick.")}
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-[10px] font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-600"
           >
             <MessageCircle size={14} />
             Suporte via WhatsApp
-          </button>
+          </a>
         </div>
-      </section>
-
-      <WaitingStyles />
-    </main>
-  );
-}
-
-
-function WaitingPageFallback() {
-  return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f9fc] px-4 py-8">
-      <section className="w-full max-w-lg rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-[0_24px_70px_rgba(15,23,42,0.11)]">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white shadow-lg shadow-teal-200">
-          <HeartPulse size={22} />
-        </div>
-
-        <div className="mx-auto mt-6 flex h-20 w-20 items-center justify-center rounded-[24px] bg-amber-50 text-amber-600 ring-1 ring-amber-100">
-          <LoaderCircle className="animate-spin" size={34} />
-        </div>
-
-        <h1 className="mt-5 text-2xl font-black tracking-tight text-slate-950">
-          Carregando seu cadastro
-        </h1>
-
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">
-          Estamos preparando o acompanhamento da liberação da sua conta.
-        </p>
       </section>
 
       <WaitingStyles />
@@ -524,5 +492,23 @@ function WaitingStyles() {
         }
       }
     `}</style>
+  );
+}
+
+
+export default function AguardandoLiberacaoPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#f5f9fc] px-4">
+          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-600 shadow-sm">
+            <LoaderCircle className="animate-spin" size={18} />
+            Carregando cadastro...
+          </div>
+        </main>
+      }
+    >
+      <AguardandoLiberacaoContent />
+    </Suspense>
   );
 }

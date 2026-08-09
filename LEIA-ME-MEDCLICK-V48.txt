@@ -1,0 +1,30 @@
+MEDCLICK V48 — MARCA + WHATSAPP GLOBAL + SUPABASE
+
+Atualizações desta versão:
+- Marca padronizada como MedClick em home, área do paciente/cliente, solicitação, admin e componentes.
+- Botão Ajuda único e sincronizado em TODAS as páginas pelo app/layout.tsx.
+- WhatsApp fixado para +55 11 91862-2785 (wa.me/5511918622785).
+- Animação infinita suave no botão Ajuda, anéis de pulso e brilho.
+- Login também recebe automaticamente o mesmo botão Ajuda.
+- Prisma schema PostgreSQL/Supabase incluído em prisma/schema.prisma.
+- Seed atualizado para scrypt, com admin aprovado e médico de teste.
+- Build atualizado para executar prisma generate antes do next build.
+
+Vercel / ambiente:
+DATABASE_URL = Transaction Pooler (porta 6543) e, se necessário no seu projeto, final ?pgbouncer=true&connection_limit=1
+DIRECT_URL = Direct Connection (porta 5432)
+SESSION_SECRET = pelo menos 32 caracteres
+
+Depois de substituir o projeto:
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run build
+
+Login admin de teste:
+admin@medclick.local
+MedClick@123
+
+IMPORTANTE:
+Não incluímos arquivos .env com senhas/credenciais dentro do ZIP.

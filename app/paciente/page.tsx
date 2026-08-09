@@ -43,7 +43,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import LogoutButton from "@/components/patient/LogoutButton";
-import WhatsAppUltraButton from "@/components/WhatsAppUltraButton";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 type PatientRequest = {
   id: string;
@@ -718,7 +718,7 @@ export default function PacientePage() {
               <ShieldCheck size={22} />
             </span>
             <div>
-              <strong className="block text-xl font-black tracking-tight">SaúdeClick</strong>
+              <strong className="block text-xl font-black tracking-tight">MedClick</strong>
               <span className="text-[8px] font-black uppercase tracking-[.18em] text-cyan-200">Área do paciente</span>
             </div>
           </div>
@@ -732,7 +732,12 @@ export default function PacientePage() {
           <a href="#documentos" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[10px] font-black text-slate-200 transition hover:bg-white/10 hover:text-white">
             <FileText size={15} /> Meus documentos
           </a>
-          <a href="#ajuda" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[10px] font-black text-slate-200 transition hover:bg-white/10 hover:text-white">
+          <a
+            href={supportWhatsAppUrl("Olá! Preciso de ajuda na Área do Paciente do MedClick.")}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[10px] font-black text-slate-200 transition hover:bg-white/10 hover:text-white"
+          >
             <HelpCircle size={15} /> Ajuda
           </a>
         </nav>
@@ -853,7 +858,7 @@ export default function PacientePage() {
               <NetworkHomeCard
                 title="Hapvida"
                 subtitle="Somente Atestado Médico"
-                description="Na Hapvida, o fluxo da SaúdeClick está disponível exclusivamente para atestado."
+                description="Na Hapvida, o fluxo da MedClick está disponível exclusivamente para atestado."
                 icon={HeartPulse}
                 tone="violet"
                 badge="Somente Atestado"
@@ -916,9 +921,9 @@ export default function PacientePage() {
                 </div>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  <ProgressBox active title="Solicitação recebida" done />
-                  <ProgressBox active={stage === "PREVIEW_PREPARING" || stage === "PREVIEW_READY"} title="Prévia" done={Boolean(preview)} />
-                  <ProgressBox active={stage === "WAITING_PAYMENT" || paymentApproved} title="Pagamento" done={paymentApproved} />
+                  <ProgressBox active label="Solicitação recebida" done />
+                  <ProgressBox active={stage === "PREVIEW_PREPARING" || stage === "PREVIEW_READY"} label="Prévia" done={Boolean(preview)} />
+                  <ProgressBox active={stage === "WAITING_PAYMENT" || paymentApproved} label="Pagamento" done={paymentApproved} />
                 </div>
 
                 {stage === "PREVIEW_PREPARING" && (
@@ -1070,7 +1075,6 @@ export default function PacientePage() {
         </div>
       )}
 
-      <WhatsAppUltraButton message={`Olá! Preciso de suporte no SaúdeClick${request?.protocol ? ` — solicitação ${request.protocol}` : ""}.`} />
       <PatientStyles />
     </main>
   );
@@ -1449,11 +1453,11 @@ function ServiceHomeCard({
 }
 
 function ProgressBox({
-  title,
+  label,
   done = false,
   active = false,
 }: {
-  title: string;
+  label: string;
   done?: boolean;
   active?: boolean;
 }) {
@@ -1488,7 +1492,7 @@ function ProgressBox({
         )}
       </span>
       <strong className="text-[9px] text-slate-700">
-        {title}
+        {label}
       </strong>
     </div>
   );

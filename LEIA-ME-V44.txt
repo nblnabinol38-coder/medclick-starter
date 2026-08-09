@@ -1,0 +1,65 @@
+SAÚDECLICK V44 — WHITE PREMIUM + UPA / UNIMED / HAPVIDA
+
+Base usada:
+k.zip enviado nesta conversa.
+
+O que mudou:
+
+ÁREA DO PACIENTE
+- Mantida em visual branco, clínico e premium.
+- Nova seção grande "Nossas unidades".
+- UPA 24h, Unimed e Hapvida aparecem em destaque.
+- Cards com animação infinita, glow e varredura de luz.
+- Hapvida marcada como "Somente Atestado".
+- Serviços continuam separados e fáceis de acessar.
+- Solicitação ativa passa a mostrar a rede/unidade.
+
+NOVA SOLICITAÇÃO
+- Agora mostra 3 unidades:
+  UPA 24h
+  Unimed
+  Hapvida
+- Hapvida libera SOMENTE Atestado Médico.
+- Receita e Laudo ficam visualmente bloqueados ao selecionar Hapvida.
+- Validação existe também na API, então não depende apenas da interface.
+- Mobile-first: cards grandes e fluxo unidade -> documento -> formulário.
+
+BACKEND / BANCO
+O schema Prisma não veio dentro do k.zip.
+Para não quebrar o banco existente, esta versão não cria um novo enum Prisma.
+
+Internamente:
+- UPA continua UnitType.UPA.
+- Unimed continua UnitType.UNIMED.
+- Hapvida usa o UnitType.UNIMED existente para compatibilidade,
+  mas o unitName recebe prefixo "Hapvida · ...".
+- Admin e Paciente detectam esse prefixo e exibem "Hapvida".
+- A API bloqueia Hapvida para Receita e Laudo.
+
+Isso permite usar Hapvida agora sem executar prisma db push.
+
+ARQUIVOS PRINCIPAIS ALTERADOS:
+app/paciente/page.tsx
+app/solicitar/page.tsx
+app/api/solicitacoes/route.ts
+app/admin/page.tsx
+
+INSTALAÇÃO:
+1. Faça backup do projeto atual.
+2. Extraia este ZIP em C:\medclick-starter
+3. Confirme a substituição dos arquivos.
+4. Pare o servidor com Ctrl + C.
+5. Execute:
+   Remove-Item -Recurse -Force .next
+   npx prisma generate
+   npm run dev
+
+NÃO execute prisma db push nesta versão.
+
+TESTE:
+1. /paciente -> devem aparecer UPA, Unimed e Hapvida.
+2. Clique Hapvida -> deve abrir /solicitar já selecionado.
+3. Hapvida -> somente Atestado pode continuar.
+4. UPA e Unimed -> fluxo normal.
+5. Crie uma solicitação Hapvida.
+6. No Admin a unidade deve aparecer como Hapvida.

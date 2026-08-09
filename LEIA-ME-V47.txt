@@ -1,0 +1,54 @@
+SAÚDECLICK V47 — FLUXO MOBILE CORRIGIDO
+
+CORREÇÕES
+- Removida definitivamente a opção duplicada de Unidade dentro do formulário.
+- A unidade agora é escolhida somente no início.
+- Dentro do formulário aparece apenas um resumo da unidade e o botão Alterar.
+
+UPA 24H
+Ao selecionar UPA, o formulário solicita:
+- Nome da UPA
+- Endereço completo
+- Cidade
+- UF
+- CEP opcional
+
+Os dados são agrupados automaticamente no campo da unidade para manter compatibilidade com o banco atual e para que a informação possa chegar ao documento/atestado.
+
+UNIMED
+- Não pede novamente a rede.
+- É registrada automaticamente como Unimed.
+
+HAPVIDA
+- Não pede novamente a rede.
+- Continua liberando somente Atestado Médico.
+
+ANIMAÇÃO DE ENVIO
+A tela de envio ganhou:
+- grade digital de fundo;
+- glow infinito;
+- órbitas animadas;
+- documento médico flutuante;
+- barra de progresso contínua;
+- Criptografando dados;
+- Validando informações;
+- Enviando solicitação;
+- Registrando atendimento;
+- Notificando equipe.
+
+ARQUIVOS VALIDADOS
+app/solicitar/page.tsx
+app/paciente/page.tsx
+app/api/solicitacoes/route.ts
+app/admin/page.tsx
+
+INSTALAÇÃO
+1. Ctrl + C
+2. Remove-Item -Recurse -Force .next
+3. Extraia o ZIP em C:\medclick-starter
+4. Confirme substituição
+5. npx prisma generate
+6. npm run dev
+
+Não apague node_modules.
+Não rode prisma db push.

@@ -1,0 +1,15 @@
+MEDCLICK V51 - HOTFIX PRERENDER
+
+Correções:
+- Corrigido erro de prerender em /cadastro/aguardando causado por useSearchParams sem Suspense.
+- Corrigido preventivamente o mesmo padrão em /solicitar.
+- Mantidas todas as correções da V50.
+- Painel administrativo continua sem botão Ajuda.
+- WhatsApp global permanece configurado para +55 11 91862-2785.
+
+Depois de substituir o projeto, preserve seu .env e execute:
+  npm install
+  npx prisma generate
+  npx prisma db push
+  npx prisma db seed
+  npm run build

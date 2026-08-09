@@ -31,8 +31,8 @@ import {
   WalletCards,
 } from "lucide-react";
 import {
-  FormEvent,
   Suspense,
+  FormEvent,
   useEffect,
   useMemo,
   useState,
@@ -158,14 +158,6 @@ function dateForInput(value?: string) {
   if (Number.isNaN(date.getTime())) return "";
 
   return date.toISOString().slice(0, 10);
-}
-
-export default function SolicitarPage() {
-  return (
-    <Suspense fallback={<SolicitarPageFallback />}>
-      <SolicitarPageContent />
-    </Suspense>
-  );
 }
 
 function SolicitarPageContent() {
@@ -389,7 +381,7 @@ function SolicitarPageContent() {
       type !== "MEDICAL_CERTIFICATE"
     ) {
       setError(
-        "Na Hapvida, a SaúdeClick disponibiliza somente Atestado Médico.",
+        "Na Hapvida, a MedClick disponibiliza somente Atestado Médico.",
       );
       return;
     }
@@ -744,7 +736,7 @@ function SolicitarPageContent() {
             </span>
             <div>
               <strong className="block text-sm font-black">
-                SaúdeClick
+                MedClick
               </strong>
               <span className="block text-[8px] font-black uppercase tracking-[.14em] text-teal-700">
                 Nova solicitação
@@ -859,7 +851,7 @@ function SolicitarPageContent() {
                   className="mt-0.5 shrink-0 text-teal-600"
                 />
                 <p className="text-[9px] leading-4 text-slate-600">
-                  Você pode solicitar pela SaúdeClick para <strong>UPA 24h, Unimed e Hapvida</strong>. Na Hapvida, somente Atestado Médico fica disponível.
+                  Você pode solicitar pela MedClick para <strong>UPA 24h, Unimed e Hapvida</strong>. Na Hapvida, somente Atestado Médico fica disponível.
                 </p>
               </div>
             </div>
@@ -1679,32 +1671,6 @@ function SolicitarPageContent() {
   );
 }
 
-
-function SolicitarPageFallback() {
-  return (
-    <main className="patient-clinic-shell mobile-premium-shell relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      <section className="w-full max-w-lg rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white shadow-lg shadow-teal-200">
-          <HeartPulse size={24} />
-        </div>
-
-        <LoaderCircle
-          className="mx-auto mt-6 animate-spin text-teal-600"
-          size={34}
-        />
-
-        <h1 className="mt-5 text-2xl font-black tracking-tight text-slate-950">
-          Preparando sua solicitação
-        </h1>
-
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">
-          Estamos carregando as informações necessárias para iniciar seu atendimento.
-        </p>
-      </section>
-    </main>
-  );
-}
-
 function StepPill({
   number,
   label,
@@ -2268,5 +2234,23 @@ function Styles() {
         animation-delay: 500ms;
       }
     `}</style>
+  );
+}
+
+
+export default function SolicitarPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-600 shadow-sm">
+            <LoaderCircle className="animate-spin" size={18} />
+            Carregando solicitação...
+          </div>
+        </main>
+      }
+    >
+      <SolicitarPageContent />
+    </Suspense>
   );
 }

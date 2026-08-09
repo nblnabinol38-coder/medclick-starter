@@ -1,0 +1,36 @@
+SAÚDECLICK V46 — MOBILE PREMIUM
+
+O QUE FOI FEITO
+- Área do Paciente refinada para experiência mobile-first.
+- Mantido visual branco e clínico.
+- Navegação inferior mobile adicionada.
+- UPA 24h, Unimed e Hapvida continuam em destaque.
+- Hapvida continua exclusiva para Atestado Médico.
+- Página de solicitação simplificada para celular.
+- O seletor de unidade duplicado dentro do formulário foi removido.
+- A unidade escolhida no início passa a ser apenas exibida/resumida durante o preenchimento.
+- Adicionado botão Alterar para voltar à escolha de unidade.
+
+ANIMAÇÃO DE ENVIO
+Ao tocar em "Enviar solicitação", aparece uma tela premium em fullscreen com:
+- fundo escuro de contraste;
+- órbitas infinitas;
+- ícones de segurança;
+- documento médico flutuante;
+- progresso animado;
+- etapas de criptografia, validação e transmissão.
+A animação permanece enquanto a solicitação é processada.
+
+BANCO
+Nenhuma alteração de schema.
+Não execute prisma db push.
+
+INSTALAÇÃO
+1. Ctrl + C
+2. Remove-Item -Recurse -Force .next
+3. Extraia este ZIP em C:\medclick-starter
+4. Confirme substituição
+5. npx prisma generate
+6. npm run dev
+
+Não precisa apagar node_modules.

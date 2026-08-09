@@ -7,14 +7,11 @@ import {
   Stethoscope,
 } from "lucide-react";
 
-const whatsappNumber = "5511926029855";
+import { SUPPORT_WHATSAPP_DISPLAY, supportWhatsAppUrl } from "@/lib/support";
 
-const whatsappMessage =
-  "Olá! Estou acessando o MedClick e preciso de ajuda com meu atendimento.";
-
-const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-  whatsappMessage,
-)}`;
+const whatsappUrl = supportWhatsAppUrl(
+  "Olá! Estou acessando o MedClick e preciso de ajuda com meu atendimento.",
+);
 
 export default function Footer() {
   return (
@@ -115,7 +112,7 @@ export default function Footer() {
               <span>
                 WhatsApp
                 <br />
-                +55 11 92602-9855
+                {SUPPORT_WHATSAPP_DISPLAY}
               </span>
             </a>
 

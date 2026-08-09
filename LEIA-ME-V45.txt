@@ -1,0 +1,64 @@
+SAÚDECLICK V45 — WHITE PREMIUM STABLE
+
+CORREÇÃO PRINCIPAL
+- Corrigido: Runtime ReferenceError: HeartPulse is not defined.
+- Corrigido também o import de ChevronRight, utilizado na Área do Paciente.
+
+ÁREA DO PACIENTE
+- Visual branco premium mantido.
+- UPA 24h, Unimed e Hapvida em destaque.
+- Hapvida marcada como "Somente Atestado".
+- Cards com animação contínua suave.
+- Fluxo permanece conectado às rotas existentes.
+
+NOVA SOLICITAÇÃO
+- UPA 24h: Atestado, Receita e Laudo.
+- Unimed: Atestado, Receita e Laudo.
+- Hapvida: SOMENTE Atestado Médico.
+- Receita e Laudo ficam bloqueados visualmente na Hapvida.
+- A regra também é protegida contra URL direta.
+- A API valida a regra novamente no servidor.
+
+ADMINISTRATIVO
+- O visual Cyber Admin foi preservado.
+- Solicitações Hapvida continuam sendo identificadas pelo prefixo da unidade.
+
+PRISMA / BANCO
+- Nenhuma alteração de schema nesta V45.
+- NÃO execute prisma db push.
+
+ARQUIVOS PRINCIPAIS VALIDADOS
+OK: /mnt/data/saudeclick-v45-white-premium-stable/app/paciente/page.tsx
+OK: /mnt/data/saudeclick-v45-white-premium-stable/app/solicitar/page.tsx
+OK: /mnt/data/saudeclick-v45-white-premium-stable/app/api/solicitacoes/route.ts
+OK: /mnt/data/saudeclick-v45-white-premium-stable/app/admin/page.tsx
+
+COMO INSTALAR
+
+1. Pare o servidor:
+   Ctrl + C
+
+2. Apague apenas:
+   C:\medclick-starter\.next
+
+   PowerShell:
+   Remove-Item -Recurse -Force .next
+
+3. Extraia o ZIP V45 diretamente em:
+   C:\medclick-starter
+
+4. Confirme a substituição dos arquivos.
+
+5. Execute:
+   npx prisma generate
+   npm run dev
+
+Não é necessário apagar node_modules.
+
+TESTE
+1. http://localhost:3000/paciente
+2. Confirme UPA 24h, Unimed e Hapvida.
+3. Clique Hapvida.
+4. Somente Atestado Médico deve ficar disponível.
+5. Teste UPA e Unimed.
+6. Deixe /admin aberto em outra janela para acompanhar o fluxo.

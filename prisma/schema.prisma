@@ -136,10 +136,10 @@ enum VerificationStatus {
 }
 
 model User {
-  id             String                @id @default(cuid())
-  name           String
-  email          String                @unique
-  passwordHash   String
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
   role           UserRole              @default(PATIENT)
   active         Boolean               @default(true)
   approvalStatus AccountApprovalStatus @default(APPROVED)
@@ -147,16 +147,16 @@ model User {
   rejectedAt     DateTime?
 
   patientProfiles Patient[]
-  doctorProfile   DoctorProfile?
+  doctorProfile  DoctorProfile?
 
-  assignedRequests  ServiceRequest[] @relation("AssignedDoctor")
+  assignedRequests ServiceRequest[] @relation("AssignedDoctor")
   requestedRequests ServiceRequest[] @relation("RequestedBy")
-  uploadedFiles     DocumentFile[]   @relation("UploadedBy")
-  statusEvents      StatusEvent[]    @relation("ChangedBy")
+  uploadedFiles    DocumentFile[]    @relation("UploadedBy")
+  statusEvents     StatusEvent[]     @relation("ChangedBy")
 
   generatedDocuments GeneratedDocument[] @relation("GeneratedBy")
   approvedDocuments  GeneratedDocument[] @relation("DocumentApprovedBy")
-  digitalSignatures  DigitalSignature[]  @relation("DocumentSignedBy")
+  digitalSignatures  DigitalSignature[]   @relation("DocumentSignedBy")
 
   reviewedPayments      Payment[]      @relation("PaymentReviewedBy")
   reviewedPaymentProofs PaymentProof[] @relation("PaymentProofReviewedBy")
@@ -179,14 +179,14 @@ model DoctorProfile {
   specialty String?
   phone     String?
 
-  signatureProvider     SignatureProvider?
-  certificateSerial     String?
-  certificateIssuer     String?
-  certificateValidUntil DateTime?
-  memedDoctorId         String?
-  memedIntegrationKey   String?
-  authorizedToSign      Boolean            @default(false)
-  active                Boolean            @default(true)
+  signatureProvider      SignatureProvider?
+  certificateSerial      String?
+  certificateIssuer      String?
+  certificateValidUntil  DateTime?
+  memedDoctorId          String?
+  memedIntegrationKey    String?
+  authorizedToSign       Boolean @default(false)
+  active                 Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -197,23 +197,23 @@ model DoctorProfile {
 }
 
 model Patient {
-  id         String   @id @default(cuid())
-  userId     String?
-  fullName   String
-  cpf        String   @unique
-  birthDate  DateTime
-  motherName String
-  phone      String
-  email      String
-  address    String
-  city       String?
-  state      String?
-  postalCode String?
-  active     Boolean  @default(true)
+  id           String   @id @default(cuid())
+  userId       String?
+  fullName     String
+  cpf          String   @unique
+  birthDate    DateTime
+  motherName   String
+  phone        String
+  email        String
+  address      String
+  city         String?
+  state        String?
+  postalCode   String?
+  active       Boolean  @default(true)
 
   nickname     String?
   relationship String?
-  isPrimary    Boolean @default(false)
+  isPrimary    Boolean  @default(false)
 
   user     User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
   requests ServiceRequest[]
@@ -236,10 +236,10 @@ model ServiceRequest {
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
 
   assignedDoctorId String?
-  assignedDoctor   User?   @relation("AssignedDoctor", fields: [assignedDoctorId], references: [id], onDelete: SetNull)
+  assignedDoctor   User? @relation("AssignedDoctor", fields: [assignedDoctorId], references: [id], onDelete: SetNull)
 
   requestedByUserId String?
-  requestedBy       User?   @relation("RequestedBy", fields: [requestedByUserId], references: [id], onDelete: SetNull)
+  requestedBy       User? @relation("RequestedBy", fields: [requestedByUserId], references: [id], onDelete: SetNull)
 
   documentType DocumentType
   status       RequestStatus @default(RECEIVED)
@@ -302,7 +302,7 @@ model MedicationRequest {
   notes              String?
 
   approvedByDoctor Boolean @default(false)
-  doctorNotes      String?
+  doctorNotes       String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -336,18 +336,18 @@ model DocumentFile {
   request   ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
   uploadedById String
-  uploadedBy   User   @relation("UploadedBy", fields: [uploadedById], references: [id], onDelete: Restrict)
+  uploadedBy   User @relation("UploadedBy", fields: [uploadedById], references: [id], onDelete: Restrict)
 
   type         DocumentFileType
   originalName String
   storageKey   String
   mimeType     String
   sizeBytes    Int
-  version      Int              @default(1)
-  active       Boolean          @default(true)
+  version      Int     @default(1)
+  active       Boolean @default(true)
 
   downloadedAt DateTime?
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime @default(now())
 
   @@index([requestId])
   @@index([uploadedById])
@@ -371,10 +371,10 @@ model GeneratedDocument {
   finalContent   String?
 
   generatedById String
-  generatedBy   User   @relation("GeneratedBy", fields: [generatedById], references: [id], onDelete: Restrict)
+  generatedBy   User @relation("GeneratedBy", fields: [generatedById], references: [id], onDelete: Restrict)
 
   approvedById String?
-  approvedBy   User?   @relation("DocumentApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedBy   User? @relation("DocumentApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
 
   approvedAt DateTime?
 
@@ -388,11 +388,11 @@ model GeneratedDocument {
   previewPrintAllowed    Boolean @default(false)
   previewHasValidQrCode  Boolean @default(false)
 
-  finalStorageKey  String?
-  finalMimeType    String?
-  finalSizeBytes   Int?
-  finalGeneratedAt DateTime?
-  finalSentAt      DateTime?
+  finalStorageKey   String?
+  finalMimeType     String?
+  finalSizeBytes    Int?
+  finalGeneratedAt  DateTime?
+  finalSentAt       DateTime?
 
   fileHash String?
 
@@ -400,11 +400,11 @@ model GeneratedDocument {
   verificationUrl    String?
   verificationQrCode String?
 
-  verificationStatus   VerificationStatus @default(INACTIVE)
+  verificationStatus  VerificationStatus @default(INACTIVE)
   authenticationActive Boolean            @default(false)
   authenticatedAt      DateTime?
 
-  cancelledAt        DateTime?
+  cancelledAt       DateTime?
   cancellationReason String?
 
   replacedByDocumentId String?
@@ -430,7 +430,7 @@ model DigitalSignature {
   generatedDocument   GeneratedDocument @relation(fields: [generatedDocumentId], references: [id], onDelete: Cascade)
 
   signedById String
-  signedBy   User   @relation("DocumentSignedBy", fields: [signedById], references: [id], onDelete: Restrict)
+  signedBy   User @relation("DocumentSignedBy", fields: [signedById], references: [id], onDelete: Restrict)
 
   provider SignatureProvider
 
@@ -479,7 +479,7 @@ model Payment {
   expiresAt         DateTime?
 
   reviewedById String?
-  reviewedBy   User?   @relation("PaymentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedBy   User? @relation("PaymentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
 
   rejectionReason String?
   reviewedAt      DateTime?
@@ -515,7 +515,7 @@ model PaymentProof {
   adminNote   String?
 
   reviewedById String?
-  reviewedBy   User?   @relation("PaymentProofReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedBy   User? @relation("PaymentProofReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
 
   rejectionReason String?
   reviewedAt      DateTime?
@@ -539,7 +539,7 @@ model StatusEvent {
   note   String?
 
   changedById String?
-  changedBy   User?   @relation("ChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+  changedBy   User? @relation("ChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
 
   visibleToPatient Boolean @default(true)
 
