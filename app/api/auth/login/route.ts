@@ -11,15 +11,25 @@ import {
   PENDING_APPROVAL_COOKIE,
 } from "@/lib/session";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 type LoginBody = {
   email?: string;
   password?: string;
 };
 
 export async function POST(request: Request) {
+  let stage = "START";
+
   try {
+    stage = "READ_BODY";
+
     const body = (await request.json()) as LoginBody;
-    const email = body.email?.trim().toLowerCase() ?? "";
+
+    const email =
+      body.email?.trim().toLowerCase() ?? "";
+
     const password = body.password ?? "";
 
     if (!email || !password) {
@@ -33,8 +43,12 @@ export async function POST(request: Request) {
       );
     }
 
+    stage = "DATABASE_LOOKUP";
+
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: {
+        email,
+      },
       select: {
         id: true,
         name: true,
@@ -57,6 +71,8 @@ export async function POST(request: Request) {
       );
     }
 
+    stage = "VERIFY_PASSWORD";
+
     const passwordOk = await verifyPassword(
       password,
       user.passwordHash,
@@ -73,31 +89,38 @@ export async function POST(request: Request) {
       );
     }
 
+    stage = "CHECK_APPROVAL";
+
     if (
       user.approvalStatus ===
       AccountApprovalStatus.PENDING
     ) {
-      const pendingToken = createPendingApprovalToken({
-        userId: user.id,
-        email: user.email,
-      });
+      stage = "CREATE_PENDING_TOKEN";
 
-      const pendingResponse = NextResponse.json(
-        {
-          success: false,
-          code: "PENDING_APPROVAL",
-          message:
-            "Seu cadastro ainda está aguardando liberação pelo administrador.",
-        },
-        { status: 403 },
-      );
+      const pendingToken =
+        createPendingApprovalToken({
+          userId: user.id,
+          email: user.email,
+        });
+
+      const pendingResponse =
+        NextResponse.json(
+          {
+            success: false,
+            code: "PENDING_APPROVAL",
+            message:
+              "Seu cadastro ainda está aguardando liberação pelo administrador.",
+          },
+          { status: 403 },
+        );
 
       pendingResponse.cookies.set({
         name: PENDING_APPROVAL_COOKIE,
         value: pendingToken,
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure:
+          process.env.NODE_ENV === "production",
         path: "/",
         maxAge: 60 * 60 * 24,
       });
@@ -132,11 +155,15 @@ export async function POST(request: Request) {
       );
     }
 
+    stage = "CREATE_SESSION_TOKEN";
+
     const token = createSessionToken({
       userId: user.id,
       email: user.email,
       role: user.role,
     });
+
+    stage = "CREATE_RESPONSE";
 
     const response = NextResponse.json({
       success: true,
@@ -148,11 +175,10 @@ export async function POST(request: Request) {
         role: user.role,
       },
       redirectTo:
-        user.role === "ADMIN"
+        user.role === "ADMIN" ||
+        user.role === "DOCTOR"
           ? "/admin"
-          : user.role === "DOCTOR"
-            ? "/admin"
-            : "/paciente",
+          : "/paciente",
     });
 
     const sessionCookieName =
@@ -160,33 +186,56 @@ export async function POST(request: Request) {
         ? PATIENT_SESSION_COOKIE
         : ADMIN_SESSION_COOKIE;
 
+    stage = "SET_COOKIE";
+
     response.cookies.set({
       name: sessionCookieName,
       value: token,
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure:
+        process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
+    stage = "SUCCESS";
+
     return response;
   } catch (error) {
-    console.error("Erro no login:", error);
+    console.error(
+      `Erro no login - etapa ${stage}:`,
+      error,
+    );
 
     const detail =
       error instanceof Error
         ? error.message
-        : "Erro interno desconhecido.";
+        : String(error);
+
+    const prismaCode =
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error
+        ? String(
+            (error as { code?: unknown }).code ??
+              "",
+          )
+        : "";
 
     return NextResponse.json(
       {
         success: false,
         code: "SERVER_ERROR",
+
+        // TEMPORÁRIO PARA DIAGNÓSTICO
+        stage,
+        prismaCode:
+          prismaCode || undefined,
+        detail,
+
         message:
-          process.env.NODE_ENV !== "production"
-            ? `Erro no login: ${detail}`
-            : "Não foi possível entrar agora. Tente novamente.",
+          "Erro interno identificado. Veja stage e detail.",
       },
       { status: 500 },
     );
