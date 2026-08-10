@@ -1,16 +1,15 @@
 "use client";
 
-import { MessageCircle, Sparkles, X } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-
-import { supportWhatsAppUrl } from "@/lib/support";
+import { useMemo, useState } from "react";
 
 type Props = {
   message?: string;
   compact?: boolean;
 };
 
+const DEFAULT_WHATSAPP_NUMBER = "5511918622785";
 
 export default function WhatsAppUltraButton({
   message = "Olá! Preciso de suporte no MedClick.",
@@ -19,128 +18,141 @@ export default function WhatsAppUltraButton({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const href = supportWhatsAppUrl(message);
+  const hidden = useMemo(() => {
+    if (!pathname) return false;
+    return pathname === "/admin" || pathname.startsWith("/admin/");
+  }, [pathname]);
 
-  // O painel administrativo não exibe o botão de ajuda.
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
+  if (hidden) return null;
+
+  const configuredNumber =
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "") ||
+    DEFAULT_WHATSAPP_NUMBER;
+
+  const href = `https://wa.me/${configuredNumber}?text=${encodeURIComponent(message)}`;
 
   return (
     <div
-      className={`fixed z-[9999] ${
-        compact
-          ? "bottom-3 right-3 sm:bottom-4 sm:right-4"
-          : "bottom-3 right-3 sm:bottom-7 sm:right-7"
-      }`}
+      data-medclick-help="fixed"
+      className="fixed right-4 z-[99999] flex flex-col items-end gap-3 sm:right-6"
+      style={{
+        position: "fixed",
+        right: compact ? "16px" : undefined,
+        bottom:
+          "max(18px, calc(env(safe-area-inset-bottom, 0px) + 18px))",
+        transform: "translateZ(0)",
+        WebkitTransform: "translateZ(0)",
+        isolation: "isolate",
+      }}
     >
       {open && (
-        <div className="wa-pop mb-3 w-[290px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-[26px] border border-emerald-100 bg-white p-4 shadow-[0_24px_70px_rgba(16,185,129,.28)]">
-          <div className="flex items-start gap-3">
-            <span className="wa-avatar relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-200">
-              <MessageCircle size={21} />
-              <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" />
-            </span>
-
-            <div className="min-w-0 flex-1">
-              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-[.12em] text-emerald-700">
-                <Sparkles size={11} />
-                Suporte MedClick
+        <section
+          role="dialog"
+          aria-label="Atendimento MedClick"
+          className="w-[min(340px,calc(100vw-32px))] overflow-hidden rounded-[24px] border border-white/10 bg-[#071824]/95 shadow-[0_24px_80px_rgba(0,0,0,.42)] backdrop-blur-xl"
+        >
+          <header className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300">
+                <MessageCircle size={21} />
               </span>
-              <strong className="mt-1 block text-xs text-slate-950">
-                Precisa de ajuda?
-              </strong>
-              <p className="mt-1 text-[10px] leading-4 text-slate-500">
-                Fale com nosso suporte pelo WhatsApp para dúvidas sobre cadastro,
-                solicitações, pagamentos ou acompanhamento.
-              </p>
+
+              <div className="min-w-0">
+                <strong className="block truncate text-sm font-black text-white">
+                  Atendimento MedClick
+                </strong>
+                <span className="mt-0.5 block text-[11px] font-semibold text-emerald-300">
+                  Suporte pelo WhatsApp
+                </span>
+              </div>
             </div>
 
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100"
               aria-label="Fechar ajuda"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95"
             >
-              <X size={13} />
+              <X size={18} />
             </button>
-          </div>
+          </header>
 
-          <a
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            className="wa-cta mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-3 text-[11px] font-black text-white shadow-lg shadow-emerald-200 transition hover:-translate-y-0.5 hover:shadow-xl"
-          >
-            <MessageCircle size={15} />
-            Conversar no WhatsApp
-          </a>
-        </div>
+          <div className="p-5">
+            <p className="text-sm font-black text-white">
+              Olá! Como podemos ajudar?
+            </p>
+            <p className="mt-2 text-xs leading-5 text-slate-300">
+              Tire dúvidas sobre sua solicitação, pagamento, acompanhamento ou documento.
+            </p>
+
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-500 px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-emerald-950/20 transition hover:-translate-y-0.5 active:scale-[.98]"
+            >
+              <MessageCircle size={19} />
+              Conversar no WhatsApp
+            </a>
+
+            <p className="mt-3 text-center text-[10px] font-medium text-slate-500">
+              O WhatsApp só abre quando você tocar no botão acima.
+            </p>
+          </div>
+        </section>
       )}
 
       <button
         type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="wa-float group relative flex min-h-12 sm:min-h-14 items-center justify-center gap-2 overflow-visible rounded-full bg-gradient-to-r from-emerald-500 via-green-500 to-green-600 px-4 sm:px-5 font-black text-white shadow-[0_18px_48px_rgba(16,185,129,.42)] transition duration-300 hover:-translate-y-1 hover:scale-105"
-        aria-label={open ? "Fechar ajuda" : "Abrir ajuda"}
+        onClick={() => setOpen((current) => !current)}
         aria-expanded={open}
+        aria-label={open ? "Fechar ajuda" : "Abrir ajuda"}
+        className={`group relative isolate flex items-center gap-2.5 overflow-hidden rounded-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-400 font-black text-white ring-1 ring-white/20 transition duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 ${
+          compact
+            ? "min-h-12 px-4 py-3 text-sm"
+            : "min-h-14 px-5 py-3.5 text-base sm:text-[17px]"
+        }`}
+        style={{
+          boxShadow: "0 14px 38px rgba(16,185,129,.38)",
+        }}
       >
-        <span className="wa-ring absolute inset-0 rounded-full border-2 border-emerald-400/50" />
-        <span className="wa-ring wa-ring-2 absolute inset-0 rounded-full border-2 border-emerald-400/30" />
-        {open ? (
-          <X size={22} className="relative z-10" />
-        ) : (
-          <MessageCircle
-            size={22}
-            className="relative z-10 transition group-hover:rotate-[-8deg] group-hover:scale-110"
-          />
-        )}
-        <span className="relative z-10">Ajuda</span>
-        {!open && (
-          <span className="absolute -right-1 -top-1 h-4 w-4 rounded-full border-[3px] border-white bg-emerald-300 shadow-sm" />
-        )}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -inset-2 -z-10 rounded-full bg-emerald-400/20 blur-xl animate-pulse"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(110deg,transparent_20%,rgba(255,255,255,.22)_48%,transparent_72%)] bg-[length:220%_100%] animate-[medclickHelpShine_3.6s_linear_infinite]"
+        />
+        <MessageCircle
+          size={compact ? 20 : 23}
+          className="relative shrink-0 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+        />
+        <span className="relative">Ajuda</span>
+        <span
+          aria-hidden="true"
+          className="absolute right-1 top-1 h-3 w-3 rounded-full bg-white shadow-[0_0_0_4px_rgba(16,185,129,.32)]"
+        />
       </button>
 
-      <style jsx>{`
-        @keyframes waRing {
-          0% { transform: scale(0.92); opacity: 0.78; }
-          100% { transform: scale(1.5); opacity: 0; }
+      <style jsx global>{`
+        @keyframes medclickHelpShine {
+          0% { background-position: 180% 0; }
+          100% { background-position: -120% 0; }
         }
-        @keyframes waFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
+
+        [data-medclick-help="fixed"] {
+          position: fixed !important;
+          z-index: 99999 !important;
+          max-width: calc(100vw - 24px);
+          pointer-events: auto;
         }
-        @keyframes waPop {
-          from { opacity: 0; transform: translateY(12px) scale(0.95); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes waShine {
-          0% { transform: translateX(-160%); }
-          55%, 100% { transform: translateX(220%); }
-        }
-        @keyframes waGlow {
-          0%, 100% { box-shadow: 0 18px 48px rgba(16,185,129,.34); }
-          50% { box-shadow: 0 20px 58px rgba(16,185,129,.58); }
-        }
-        .wa-float {
-          animation: waFloat 2.7s ease-in-out infinite, waGlow 2.7s ease-in-out infinite;
-        }
-        .wa-ring { animation: waRing 1.9s ease-out infinite; pointer-events: none; }
-        .wa-ring-2 { animation-delay: .8s; }
-        .wa-pop { animation: waPop 280ms cubic-bezier(.22,1,.36,1) both; }
-        .wa-avatar { animation: waFloat 2.8s ease-in-out infinite; }
-        .wa-cta { position: relative; overflow: hidden; }
-        .wa-cta::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          width: 42%;
-          background: linear-gradient(110deg, transparent, rgba(255,255,255,.4), transparent);
-          animation: waShine 2.8s ease-in-out infinite;
-          pointer-events: none;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .wa-float, .wa-ring, .wa-avatar, .wa-cta::after, .wa-pop { animation: none !important; }
+
+        @media (max-width: 640px) {
+          [data-medclick-help="fixed"] {
+            right: 14px !important;
+            bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 14px)) !important;
+          }
         }
       `}</style>
     </div>
