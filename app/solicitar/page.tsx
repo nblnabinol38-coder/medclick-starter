@@ -19,6 +19,10 @@ import {
   HeartPulse,
   Hospital,
   Building2,
+  BrainCircuit,
+  WandSparkles,
+  PenLine,
+  ChevronDown,
   MapPin,
   LoaderCircle,
   LockKeyhole,
@@ -198,12 +202,11 @@ function SolicitarPageContent() {
     useState<UnitType>("UNIMED");
   const [providerSelected, setProviderSelected] =
     useState<ProviderType | null>(null);
-  const [upaDetails, setUpaDetails] = useState({
+  const [unitDetails, setUnitDetails] = useState({
     name: "",
-    address: "",
+    neighborhood: "",
     city: "",
     state: "",
-    postalCode: "",
   });
 
   const [medication, setMedication] = useState({
@@ -214,6 +217,14 @@ function SolicitarPageContent() {
     instructions: "",
     notes: "",
   });
+
+  const [cidValue, setCidValue] = useState("");
+  const [symptomsText, setSymptomsText] = useState("");
+  const [cidLoading, setCidLoading] = useState(false);
+  const [cidMessage, setCidMessage] = useState("");
+  const [cidSuggestions, setCidSuggestions] = useState<
+    Array<{ code: string; description: string; rationale: string }>
+  >([]);
 
   const [submitting, setSubmitting] =
     useState(false);
@@ -338,6 +349,51 @@ function SolicitarPageContent() {
     [service, certificateDays],
   );
 
+  const needsUnimedPrescriptionContact =
+    service === "PRESCRIPTION" && providerSelected === "UNIMED";
+
+  async function suggestCid() {
+    if (symptomsText.trim().length < 8) {
+      setCidMessage("Descreva os sintomas com um pouco mais de detalhe para receber sugestões.");
+      return;
+    }
+
+    try {
+      setCidLoading(true);
+      setCidMessage("");
+      setCidSuggestions([]);
+
+      const response = await fetch("/api/cid/sugerir", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symptoms: symptomsText }),
+      });
+
+      const data = (await response.json()) as {
+        success?: boolean;
+        message?: string;
+        suggestions?: Array<{ code: string; description: string; rationale: string }>;
+      };
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Não foi possível gerar sugestões de CID agora.");
+      }
+
+      setCidSuggestions(data.suggestions ?? []);
+      if (!(data.suggestions ?? []).length) {
+        setCidMessage("Nenhuma sugestão foi encontrada. Você pode informar o CID manualmente.");
+      }
+    } catch (requestError) {
+      setCidMessage(
+        requestError instanceof Error
+          ? requestError.message
+          : "Não foi possível gerar sugestões de CID agora.",
+      );
+    } finally {
+      setCidLoading(false);
+    }
+  }
+
   function selectProvider(
     provider: ProviderType,
   ) {
@@ -439,25 +495,31 @@ function SolicitarPageContent() {
         otherPatient.cpf,
         otherPatient.birthDate,
         otherPatient.motherName,
-        otherPatient.phone,
-        otherPatient.email,
-        otherPatient.address,
       ];
 
-      if (
-        requiredPatientFields.some(
-          (field) => !String(field).trim(),
-        )
-      ) {
+      if (needsUnimedPrescriptionContact) {
+        requiredPatientFields.push(
+          otherPatient.phone,
+          otherPatient.email,
+          otherPatient.address,
+          otherPatient.city,
+          otherPatient.state,
+          otherPatient.postalCode,
+        );
+      }
+
+      if (requiredPatientFields.some((field) => !String(field).trim())) {
         setError(
-          "Preencha os dados obrigatórios da pessoa que será atendida.",
+          needsUnimedPrescriptionContact
+            ? "Preencha os dados do paciente e os dados de contato exigidos para a Receita Médica Unimed."
+            : "Preencha nome, CPF, data de nascimento e nome da mãe do paciente.",
         );
         return;
       }
     }
 
-    const cid = value("cid");
-    const symptoms = value("symptoms");
+    const cid = cidValue.trim();
+    const symptoms = symptomsText.trim();
     const reportPurpose = value("reportPurpose");
     const reportDescription =
       value("reportDescription");
@@ -466,18 +528,26 @@ function SolicitarPageContent() {
       value("additionalNotes");
 
     if (
-      providerSelected === "UPA" &&
-      (
-        !upaDetails.name.trim() ||
-        !upaDetails.address.trim() ||
-        !upaDetails.city.trim() ||
-        !upaDetails.state.trim()
-      )
+      !unitDetails.name.trim() ||
+      !unitDetails.neighborhood.trim() ||
+      !unitDetails.city.trim() ||
+      !unitDetails.state.trim()
     ) {
       setError(
-        "Informe o nome, endereço, cidade e UF da UPA.",
+        "Informe o nome da unidade, bairro, cidade e estado.",
       );
       setShowSubmitAnimation(false);
+      return;
+    }
+
+    if (
+      service !== "PRESCRIPTION" &&
+      symptoms.length < 5 &&
+      !cid
+    ) {
+      setError(
+        "Descreva os sintomas/motivo ou informe o CID, se já souber.",
+      );
       return;
     }
 
@@ -514,13 +584,24 @@ function SolicitarPageContent() {
           selectedPatient.birthDate,
         ),
         motherName: selectedPatient.motherName.trim(),
-        phone: selectedPatient.phone.trim(),
-        email: selectedPatient.email.trim(),
-        address: selectedPatient.address.trim(),
-        city: selectedPatient.city?.trim() ?? "",
-        state: selectedPatient.state?.trim() ?? "",
-        postalCode:
-          selectedPatient.postalCode?.trim() ?? "",
+        phone: needsUnimedPrescriptionContact
+          ? selectedPatient.phone.trim()
+          : "",
+        email: needsUnimedPrescriptionContact
+          ? selectedPatient.email.trim()
+          : "",
+        address: needsUnimedPrescriptionContact
+          ? selectedPatient.address.trim()
+          : "",
+        city: needsUnimedPrescriptionContact
+          ? selectedPatient.city?.trim() ?? ""
+          : "",
+        state: needsUnimedPrescriptionContact
+          ? selectedPatient.state?.trim() ?? ""
+          : "",
+        postalCode: needsUnimedPrescriptionContact
+          ? selectedPatient.postalCode?.trim() ?? ""
+          : "",
 
         documentType: documentApiType(service),
 
@@ -588,24 +669,15 @@ function SolicitarPageContent() {
 
         unitType,
         providerNetwork: providerSelected,
-        unitName:
-          providerSelected === "UPA"
-            ? [
-                upaDetails.name.trim(),
-                upaDetails.address.trim(),
-                [
-                  upaDetails.city.trim(),
-                  upaDetails.state.trim(),
-                ]
-                  .filter(Boolean)
-                  .join(" / "),
-                upaDetails.postalCode.trim(),
-              ]
-                .filter(Boolean)
-                .join(" · ")
-            : providerSelected === "HAPVIDA"
-              ? "Hapvida"
-              : "Unimed",
+        unitName: [
+          unitDetails.name.trim(),
+          `Bairro ${unitDetails.neighborhood.trim()}`,
+          [unitDetails.city.trim(), unitDetails.state.trim()]
+            .filter(Boolean)
+            .join(" / "),
+        ]
+          .filter(Boolean)
+          .join(" · "),
 
         priceCents,
 
@@ -1028,27 +1100,18 @@ function SolicitarPageContent() {
                         label="Nome da mãe"
                         value={profile.motherName}
                       />
-                      <ReadOnlyData
-                        label="E-mail"
-                        value={profile.email}
-                      />
-                      <ReadOnlyData
-                        label="Telefone"
-                        value={profile.phone}
-                      />
-                      <ReadOnlyData
-                        label="Endereço"
-                        value={profile.address}
-                      />
-                      <ReadOnlyData
-                        label="Cidade / UF"
-                        value={[
-                          profile.city,
-                          profile.state,
-                        ]
-                          .filter(Boolean)
-                          .join(" / ")}
-                      />
+                      {needsUnimedPrescriptionContact && (
+                        <>
+                          <ReadOnlyData label="E-mail" value={profile.email} />
+                          <ReadOnlyData label="Telefone" value={profile.phone} />
+                          <ReadOnlyData label="Endereço" value={profile.address} />
+                          <ReadOnlyData
+                            label="Cidade / UF"
+                            value={[profile.city, profile.state].filter(Boolean).join(" / ")}
+                          />
+                          <ReadOnlyData label="CEP" value={profile.postalCode ?? ""} />
+                        </>
+                      )}
                     </div>
                   ) : (
                     <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">
@@ -1122,102 +1185,30 @@ function SolicitarPageContent() {
                         placeholder="Nome completo da mãe"
                       />
 
-                      <PatientInput
-                        label="Telefone"
-                        type="tel"
-                        value={otherPatient.phone}
-                        onChange={(value) =>
-                          setOtherPatient(
-                            (current) => ({
-                              ...current,
-                              phone: value,
-                            }),
-                          )
-                        }
-                        placeholder="(00) 00000-0000"
-                      />
+                      {needsUnimedPrescriptionContact && (
+                        <div className="sm:col-span-2 mt-1 rounded-[22px] border border-emerald-100 bg-emerald-50/50 p-4">
+                          <div className="mb-4 flex items-start gap-3">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-100">
+                              <ReceiptText size={18} />
+                            </span>
+                            <div>
+                              <strong className="block text-xs font-black text-slate-900">Dados complementares da Receita Unimed</strong>
+                              <span className="mt-1 block text-[9px] leading-4 text-slate-500">Somente a Receita Médica Unimed solicita contato e endereço residencial.</span>
+                            </div>
+                          </div>
 
-                      <PatientInput
-                        label="E-mail"
-                        type="email"
-                        value={otherPatient.email}
-                        onChange={(value) =>
-                          setOtherPatient(
-                            (current) => ({
-                              ...current,
-                              email: value,
-                            }),
-                          )
-                        }
-                        placeholder="email@exemplo.com"
-                      />
-
-                      <div className="sm:col-span-2">
-                        <PatientInput
-                          label="Endereço"
-                          value={
-                            otherPatient.address
-                          }
-                          onChange={(value) =>
-                            setOtherPatient(
-                              (current) => ({
-                                ...current,
-                                address: value,
-                              }),
-                            )
-                          }
-                          placeholder="Rua, número, complemento"
-                        />
-                      </div>
-
-                      <PatientInput
-                        label="Cidade"
-                        required={false}
-                        value={otherPatient.city}
-                        onChange={(value) =>
-                          setOtherPatient(
-                            (current) => ({
-                              ...current,
-                              city: value,
-                            }),
-                          )
-                        }
-                        placeholder="Cidade"
-                      />
-
-                      <PatientInput
-                        label="UF"
-                        required={false}
-                        value={otherPatient.state}
-                        onChange={(value) =>
-                          setOtherPatient(
-                            (current) => ({
-                              ...current,
-                              state: value
-                                .toUpperCase()
-                                .slice(0, 2),
-                            }),
-                          )
-                        }
-                        placeholder="SC"
-                      />
-
-                      <PatientInput
-                        label="CEP"
-                        required={false}
-                        value={
-                          otherPatient.postalCode
-                        }
-                        onChange={(value) =>
-                          setOtherPatient(
-                            (current) => ({
-                              ...current,
-                              postalCode: value,
-                            }),
-                          )
-                        }
-                        placeholder="00000-000"
-                      />
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <PatientInput label="Telefone" type="tel" value={otherPatient.phone} onChange={(value) => setOtherPatient((current) => ({ ...current, phone: value }))} placeholder="(00) 00000-0000" />
+                            <PatientInput label="E-mail" type="email" value={otherPatient.email} onChange={(value) => setOtherPatient((current) => ({ ...current, email: value }))} placeholder="email@exemplo.com" />
+                            <div className="sm:col-span-2">
+                              <PatientInput label="Endereço residencial" value={otherPatient.address} onChange={(value) => setOtherPatient((current) => ({ ...current, address: value }))} placeholder="Rua, número e complemento" />
+                            </div>
+                            <PatientInput label="Cidade" value={otherPatient.city} onChange={(value) => setOtherPatient((current) => ({ ...current, city: value }))} placeholder="Cidade" />
+                            <PatientInput label="UF" value={otherPatient.state} onChange={(value) => setOtherPatient((current) => ({ ...current, state: value.toUpperCase().slice(0, 2) }))} placeholder="SP" />
+                            <PatientInput label="CEP" value={otherPatient.postalCode} onChange={(value) => setOtherPatient((current) => ({ ...current, postalCode: value }))} placeholder="00000-000" />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1288,114 +1279,41 @@ function SolicitarPageContent() {
                     <input type="hidden" name="unitType" value={unitType} />
                   </div>
 
-                  {providerSelected === "UPA" && (
-                    <div className="upa-address-card relative overflow-hidden rounded-[24px] border border-cyan-100 bg-white p-4 shadow-[0_16px_42px_rgba(14,165,233,.07)] sm:p-5">
-                      <span className="sc-pulse pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-cyan-100/70 blur-xl" />
-
-                      <div className="relative">
-                        <div className="flex items-start gap-3">
-                          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-100">
-                            <MapPin size={19} />
-                          </span>
-
-                          <div>
-                            <span className="text-[8px] font-black uppercase tracking-[.14em] text-cyan-700">
-                              Endereço da UPA
-                            </span>
-                            <h3 className="mt-1 text-[14px] font-black text-slate-950">
-                              Informe a unidade onde deseja emitir
-                            </h3>
-                            <p className="mt-1 text-[9px] leading-4 text-slate-500">
-                              Esses dados identificam corretamente a UPA e podem ser utilizados no documento quando aplicável.
-                            </p>
-                          </div>
+                  <div className="upa-address-card relative overflow-hidden rounded-[24px] border border-cyan-100 bg-white p-4 shadow-[0_16px_42px_rgba(14,165,233,.07)] sm:p-5">
+                    <span className="sc-pulse pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-cyan-100/70 blur-xl" />
+                    <div className="relative">
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 text-white shadow-lg shadow-cyan-100">
+                          <MapPin size={19} />
+                        </span>
+                        <div>
+                          <span className="text-[8px] font-black uppercase tracking-[.14em] text-cyan-700">Informações da unidade</span>
+                          <h3 className="mt-1 text-[14px] font-black text-slate-950">Qual unidade vai constar no documento?</h3>
+                          <p className="mt-1 text-[9px] leading-4 text-slate-500">Preencha somente o essencial: nome da unidade, bairro, cidade e estado.</p>
                         </div>
+                      </div>
 
-                        <div className="mt-4 grid gap-3">
-                          <PatientInput
-                            label="Nome da UPA"
-                            value={upaDetails.name}
-                            onChange={(value) =>
-                              setUpaDetails((current) => ({
-                                ...current,
-                                name: value,
-                              }))
-                            }
-                            placeholder="Ex.: UPA 24h Bom Jardim"
-                          />
-
-                          <PatientInput
-                            label="Endereço completo da UPA"
-                            value={upaDetails.address}
-                            onChange={(value) =>
-                              setUpaDetails((current) => ({
-                                ...current,
-                                address: value,
-                              }))
-                            }
-                            placeholder="Ex.: Rua das Flores, 123 - Centro"
-                          />
-
-                          <div className="grid grid-cols-[1fr_90px] gap-3">
-                            <PatientInput
-                              label="Cidade"
-                              value={upaDetails.city}
-                              onChange={(value) =>
-                                setUpaDetails((current) => ({
-                                  ...current,
-                                  city: value,
-                                }))
-                              }
-                              placeholder="Ex.: Fortaleza"
-                            />
-
-                            <PatientInput
-                              label="UF"
-                              value={upaDetails.state}
-                              onChange={(value) =>
-                                setUpaDetails((current) => ({
-                                  ...current,
-                                  state: value.toUpperCase().slice(0, 2),
-                                }))
-                              }
-                              placeholder="CE"
-                            />
-                          </div>
-
-                          <PatientInput
-                            label="CEP"
-                            required={false}
-                            value={upaDetails.postalCode}
-                            onChange={(value) =>
-                              setUpaDetails((current) => ({
-                                ...current,
-                                postalCode: value,
-                              }))
-                            }
-                            placeholder="00000-000"
-                          />
+                      <div className="mt-4 grid gap-3">
+                        <PatientInput
+                          label="Nome da unidade"
+                          value={unitDetails.name}
+                          onChange={(value) => setUnitDetails((current) => ({ ...current, name: value }))}
+                          placeholder={providerSelected === "UPA" ? "Ex.: UPA 24h Bom Jardim" : providerSelected === "HAPVIDA" ? "Ex.: Hapvida Aldeota" : "Ex.: Unimed Fortaleza"}
+                        />
+                        <PatientInput
+                          label="Bairro"
+                          value={unitDetails.neighborhood}
+                          onChange={(value) => setUnitDetails((current) => ({ ...current, neighborhood: value }))}
+                          placeholder="Ex.: Centro"
+                        />
+                        <div className="grid grid-cols-[1fr_90px] gap-3">
+                          <PatientInput label="Cidade" value={unitDetails.city} onChange={(value) => setUnitDetails((current) => ({ ...current, city: value }))} placeholder="Ex.: Fortaleza" />
+                          <PatientInput label="UF" value={unitDetails.state} onChange={(value) => setUnitDetails((current) => ({ ...current, state: value.toUpperCase().slice(0, 2) }))} placeholder="CE" />
                         </div>
                       </div>
                     </div>
-                  )}
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field
-                      label="Horário desejado"
-                      name="preferredTime"
-                      placeholder="Ex.: manhã ou 14:00"
-                      required={false}
-                    />
-
-                    {service !== "PRESCRIPTION" && (
-                      <Field
-                        label="CID, se informado"
-                        name="cid"
-                        placeholder="Ex.: F41"
-                        required={false}
-                      />
-                    )}
                   </div>
+
                 </div>
 
                 {service ===
@@ -1428,10 +1346,15 @@ function SolicitarPageContent() {
                       ))}
                     </div>
 
-                    <TextArea
-                      label="Sintomas / motivo"
-                      name="symptoms"
-                      placeholder="Descreva de forma objetiva o motivo da solicitação."
+                    <CidAssistant
+                      symptoms={symptomsText}
+                      onSymptomsChange={setSymptomsText}
+                      cid={cidValue}
+                      onCidChange={setCidValue}
+                      loading={cidLoading}
+                      message={cidMessage}
+                      suggestions={cidSuggestions}
+                      onSuggest={suggestCid}
                     />
                   </div>
                 )}
@@ -1542,10 +1465,15 @@ function SolicitarPageContent() {
                       placeholder="Explique a finalidade e as informações que precisam ser analisadas."
                     />
 
-                    <TextArea
-                      label="Sintomas / contexto"
-                      name="symptoms"
-                      placeholder="Descreva o contexto clínico da solicitação."
+                    <CidAssistant
+                      symptoms={symptomsText}
+                      onSymptomsChange={setSymptomsText}
+                      cid={cidValue}
+                      onCidChange={setCidValue}
+                      loading={cidLoading}
+                      message={cidMessage}
+                      suggestions={cidSuggestions}
+                      onSuggest={suggestCid}
                     />
 
                     <TextArea
@@ -1590,11 +1518,12 @@ function SolicitarPageContent() {
                   <SummaryRow
                     label="Unidade"
                     value={
-                      providerSelected === "UPA"
-                        ? upaDetails.name || "UPA 24h"
+                      unitDetails.name ||
+                      (providerSelected === "UPA"
+                        ? "UPA 24h"
                         : providerSelected === "HAPVIDA"
                           ? "Hapvida"
-                          : "Unimed"
+                          : "Unimed")
                     }
                   />
 
@@ -2115,6 +2044,214 @@ function ControlledTextArea({
         className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-teal-300 focus:bg-white focus:ring-4 focus:ring-teal-100/60"
       />
     </label>
+  );
+}
+
+function CidAssistant({
+  symptoms,
+  onSymptomsChange,
+  cid,
+  onCidChange,
+  loading,
+  message,
+  suggestions,
+  onSuggest,
+}: {
+  symptoms: string;
+  onSymptomsChange: (value: string) => void;
+  cid: string;
+  onCidChange: (value: string) => void;
+  loading: boolean;
+  message: string;
+  suggestions: Array<{ code: string; description: string; rationale: string }>;
+  onSuggest: () => void;
+}) {
+  const [manualOpen, setManualOpen] = useState(false);
+  const hasSuggestions = suggestions.length > 0;
+
+  return (
+    <div className="cid-ai-shell mt-5 overflow-hidden rounded-[28px] border border-cyan-100 bg-white shadow-[0_24px_70px_rgba(8,145,178,.10)]">
+      <div className="cid-ai-hero relative overflow-hidden bg-gradient-to-br from-[#052b3a] via-[#063e49] to-[#087a70] px-4 py-5 text-white sm:px-5">
+        <div className="cid-ai-orb cid-ai-orb-one" />
+        <div className="cid-ai-orb cid-ai-orb-two" />
+        <div className="relative z-10 flex items-start gap-3">
+          <span className="cid-ai-brain flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-cyan-100 shadow-[0_12px_35px_rgba(13,148,136,.28)] backdrop-blur">
+            <BrainCircuit size={22} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-200/20 bg-cyan-200/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-[.16em] text-cyan-100">
+              <Sparkles size={10} /> IA de apoio clínico
+            </span>
+            <h3 className="mt-2 text-[15px] font-black tracking-tight sm:text-base">
+              Conte o que está sentindo
+            </h3>
+            <p className="mt-1 max-w-xl text-[10px] leading-5 text-cyan-50/75">
+              A IA analisa o relato e mostra possíveis CIDs relacionados. Você escolhe uma sugestão; nada é aplicado automaticamente.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-5">
+        <label className="block">
+          <span className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-wide text-slate-600">
+            <span>Sintomas / motivo</span>
+            <span className="normal-case font-bold text-slate-400">mín. 10 caracteres</span>
+          </span>
+          <div className="relative mt-2 overflow-hidden rounded-[20px] border border-slate-200 bg-slate-50 transition focus-within:border-cyan-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-cyan-100/60">
+            <textarea
+              value={symptoms}
+              onChange={(event) => {
+                onSymptomsChange(event.target.value);
+                if (suggestions.length) onCidChange("");
+              }}
+              rows={5}
+              placeholder="Ex.: estou com dor de garganta há 2 dias, febre, dificuldade para engolir e dor no corpo..."
+              className="w-full resize-none bg-transparent px-4 pb-12 pt-4 text-[13px] leading-6 text-slate-800 outline-none placeholder:text-slate-400"
+            />
+            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-2 text-[9px] text-slate-400">
+              <span>Descreva duração, intensidade e sintomas associados.</span>
+              <span className="font-black">{symptoms.trim().length}</span>
+            </div>
+          </div>
+        </label>
+
+        <button
+          type="button"
+          onClick={onSuggest}
+          disabled={loading || symptoms.trim().length < 10}
+          className="cid-ai-button group relative mt-3 flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-[18px] bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 px-4 text-[12px] font-black text-white shadow-[0_16px_35px_rgba(13,148,136,.25)] transition enabled:hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          <span className="cid-ai-button-shine" />
+          {loading ? (
+            <>
+              <LoaderCircle size={17} className="animate-spin" />
+              IA analisando sintomas...
+            </>
+          ) : (
+            <>
+              <WandSparkles size={17} className="transition group-hover:rotate-6 group-hover:scale-110" />
+              Analisar sintomas e sugerir CID
+            </>
+          )}
+        </button>
+
+        {loading && (
+          <div className="mt-3 overflow-hidden rounded-2xl border border-cyan-100 bg-cyan-50/70 p-3">
+            <div className="flex items-center gap-2 text-[10px] font-bold text-cyan-800">
+              <BrainCircuit size={14} /> Comparando o relato com possibilidades de codificação clínica...
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cyan-100">
+              <span className="cid-ai-loader block h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500" />
+            </div>
+          </div>
+        )}
+
+        {message && !loading && (
+          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-[10px] font-semibold leading-5 text-amber-800">
+            {message}
+          </div>
+        )}
+
+        {hasSuggestions && !loading && (
+          <div className="mt-4">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div>
+                <strong className="block text-[11px] font-black text-slate-900">Sugestões encontradas</strong>
+                <span className="text-[9px] text-slate-500">Toque em uma opção para selecionar.</span>
+              </div>
+              <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[8px] font-black uppercase tracking-wide text-teal-700">
+                {suggestions.length} opções
+              </span>
+            </div>
+
+            <div className="grid gap-2.5">
+              {suggestions.map((item, index) => {
+                const selected = cid === item.code;
+                return (
+                  <button
+                    key={`${item.code}-${index}`}
+                    type="button"
+                    onClick={() => {
+                      onCidChange(item.code);
+                      setManualOpen(false);
+                    }}
+                    className={`cid-suggestion-card relative overflow-hidden rounded-[20px] border p-4 text-left transition ${
+                      selected
+                        ? "border-teal-400 bg-gradient-to-br from-teal-50 to-cyan-50 ring-2 ring-teal-100"
+                        : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-lg"
+                    }`}
+                  >
+                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-[10px] font-black text-slate-400">
+                      {selected ? <CheckCircle2 size={16} className="text-teal-600" /> : index + 1}
+                    </span>
+                    <div className="pr-9">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-lg bg-slate-950 px-2.5 py-1.5 font-mono text-[11px] font-black text-white">
+                          {item.code}
+                        </span>
+                        {selected && (
+                          <span className="text-[8px] font-black uppercase tracking-wide text-teal-700">Selecionado</span>
+                        )}
+                      </div>
+                      <strong className="mt-2 block text-[12px] font-black text-slate-900">{item.description}</strong>
+                      <span className="mt-1 block text-[9.5px] leading-4 text-slate-500">{item.rationale}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {cid && (
+          <div className="mt-3 flex items-center gap-3 rounded-[18px] border border-emerald-200 bg-emerald-50 px-3.5 py-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white">
+              <Check size={17} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[8px] font-black uppercase tracking-[.14em] text-emerald-700">CID selecionado</span>
+              <strong className="mt-0.5 block font-mono text-[13px] text-slate-950">{cid}</strong>
+            </div>
+            <button type="button" onClick={() => onCidChange("")} className="rounded-lg px-2 py-1 text-[9px] font-black text-slate-500 hover:bg-white">
+              Limpar
+            </button>
+          </div>
+        )}
+
+        <div className="mt-4 border-t border-slate-100 pt-3">
+          <button
+            type="button"
+            onClick={() => setManualOpen((value) => !value)}
+            className="flex w-full items-center justify-between gap-3 rounded-xl px-1 py-2 text-left"
+          >
+            <span className="flex items-center gap-2 text-[10px] font-black text-slate-600">
+              <PenLine size={14} className="text-slate-400" /> Já sabe o CID? Informar manualmente
+            </span>
+            <ChevronDown size={15} className={`text-slate-400 transition ${manualOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {manualOpen && (
+            <div className="other-patient-enter mt-2">
+              <ControlledField
+                label="CID, se souber"
+                value={cid}
+                onChange={onCidChange}
+                placeholder="Ex.: F41.1"
+              />
+            </div>
+          )}
+        </div>
+
+        <p className="mt-3 flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-[8.5px] leading-4 text-slate-500">
+          <ShieldCheck size={13} className="mt-0.5 shrink-0 text-teal-600" />
+          As sugestões são apoio à codificação e precisam ser confirmadas por profissional habilitado antes de integrar qualquer documento clínico.
+        </p>
+
+        <input type="hidden" name="cid" value={cid} />
+        <input type="hidden" name="symptoms" value={symptoms} />
+      </div>
+    </div>
   );
 }
 

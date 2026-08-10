@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import WhatsAppUltraButton from "@/components/WhatsAppUltraButton";
+import MedClickAtmosphere from "@/components/MedClickAtmosphere";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
+        <MedClickAtmosphere />
         {children}
         <WhatsAppUltraButton />
       </body>

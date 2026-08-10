@@ -1,0 +1,18 @@
+MEDCLICK V54 — HOME PREMIUM
+
+Atualizações principais:
+- Home redesenhada em visual dark premium, inspirada no mockup aprovado.
+- Documento verificável 3D feito em HTML/CSS, sem dependência de imagem externa.
+- Efeitos infinitos discretos: halo, glow, partículas, scanline, shimmer, flutuação e progresso.
+- Layout responsivo para celular e desktop.
+- Botões e textos mantidos profissionais, sem alterar APIs, banco, login ou fluxo das solicitações.
+- Botão Ajuda continua oculto em /admin.
+- WhatsApp de suporte centralizado em lib/support.ts: +55 11 91862-2785.
+
+Após substituir os arquivos, mantenha seu .env atual.
+Validação recomendada:
+  npm install
+  npx prisma generate
+  npx prisma db push
+  npx prisma db seed
+  npm run build

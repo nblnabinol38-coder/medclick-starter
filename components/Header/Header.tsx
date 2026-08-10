@@ -1,88 +1,37 @@
 import Link from "next/link";
+import { Menu, ShieldCheck } from "lucide-react";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
-      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link
-          href="/"
-          className="group flex items-center gap-2.5"
-          aria-label="MedClick - Página inicial"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 text-sm font-black text-white shadow-lg shadow-teal-500/20 transition duration-300 group-hover:scale-105">
-            M+
-          </span>
-          <div>
-            <strong className="block text-lg font-black tracking-tight text-slate-950">
-              Med<span className="text-teal-600">Click</span>
+    <header className="mc-header sticky top-0 z-50 border-b border-white/10 bg-[#06131d]/90 backdrop-blur-2xl">
+      <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="group flex min-w-0 items-center gap-3" aria-label="MedClick - Página inicial">
+          <span className="mc-logo-mark">M+</span>
+          <div className="min-w-0">
+            <strong className="block truncate text-xl font-black tracking-tight text-white sm:text-2xl">
+              Med<span className="text-teal-400">Click</span>
             </strong>
-            <span className="hidden text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400 sm:block">
-              Tele Saúde
+            <span className="hidden items-center gap-1 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500 sm:flex">
+              <ShieldCheck size={10} /> Área segura
             </span>
           </div>
         </Link>
 
-        <nav
-          aria-label="Navegação principal"
-          className="hidden items-center gap-7 text-sm font-semibold text-slate-700 lg:flex"
-        >
-          <a
-            href="#como-funciona"
-            className="transition hover:text-teal-600"
-          >
-            Como funciona
-          </a>
-
-          <a
-            href="#documentos"
-            className="transition hover:text-teal-600"
-          >
-            Documentos
-          </a>
-
-          <a
-            href="#precos"
-            className="transition hover:text-teal-600"
-          >
-            Preços
-          </a>
-
-          <a
-            href="#seguranca"
-            className="transition hover:text-teal-600"
-          >
-            Segurança
-          </a>
-
-          <a
-            href="#contato"
-            className="transition hover:text-teal-600"
-          >
-            Contato
-          </a>
+        <nav aria-label="Navegação principal" className="hidden items-center gap-7 text-sm font-semibold text-slate-300 lg:flex">
+          <a href="#como-funciona" className="transition hover:text-teal-300">Como funciona</a>
+          <a href="#documentos" className="transition hover:text-teal-300">Documentos</a>
+          <a href="#seguranca" className="transition hover:text-teal-300">Segurança</a>
+          <Link href="/login" className="transition hover:text-teal-300">Entrar</Link>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/login"
-            className="hidden rounded-xl border border-teal-600 px-4 py-2.5 text-sm font-semibold text-teal-700 transition hover:-translate-y-0.5 hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 sm:inline-flex"
-          >
+          <Link href="/login" className="hidden rounded-xl border border-teal-400/40 px-4 py-2.5 text-sm font-bold text-teal-200 transition hover:bg-teal-400/10 sm:inline-flex">
             Entrar
           </Link>
-
-          <Link
-            href="/cadastro"
-            className="hidden rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 md:inline-flex"
-          >
-            Criar conta
-          </Link>
-
-          <Link
-            href="/solicitar"
-            className="inline-flex rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 sm:px-5"
-          >
-            Solicitar atendimento
-          </Link>
+          <Link href="/solicitar" className="mc-header-cta">Solicitar atendimento</Link>
+          <span className="hidden h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-slate-300 md:flex lg:hidden">
+            <Menu size={21} />
+          </span>
         </div>
       </div>
     </header>

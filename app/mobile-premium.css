@@ -140,3 +140,12 @@
     border-radius: 20px;
   }
 }
+
+/* V56 — CID assistant premium */
+@keyframes cidOrbFloat{0%,100%{transform:translate3d(0,0,0) scale(.92)}50%{transform:translate3d(18px,-12px,0) scale(1.08)}}
+@keyframes cidBrainPulse{0%,100%{transform:translateY(0) rotate(-2deg);box-shadow:0 12px 35px rgba(13,148,136,.24)}50%{transform:translateY(-5px) rotate(2deg);box-shadow:0 18px 48px rgba(34,211,238,.34)}}
+@keyframes cidButtonShine{0%,20%{transform:translateX(-180%) skewX(-18deg)}55%,100%{transform:translateX(480%) skewX(-18deg)}}
+@keyframes cidLoader{0%{width:12%;transform:translateX(-20%)}50%{width:65%}100%{width:35%;transform:translateX(210%)}}
+@keyframes cidCardIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.cid-ai-hero{isolation:isolate}.cid-ai-orb{position:absolute;border-radius:999px;filter:blur(12px);pointer-events:none;animation:cidOrbFloat 5s ease-in-out infinite}.cid-ai-orb-one{right:-42px;top:-54px;width:180px;height:180px;background:rgba(34,211,238,.16)}.cid-ai-orb-two{left:25%;bottom:-70px;width:160px;height:160px;background:rgba(52,211,153,.14);animation-delay:-2s}.cid-ai-brain{animation:cidBrainPulse 3.2s ease-in-out infinite}.cid-ai-button-shine{position:absolute;inset:-20% auto -20% -30%;width:35%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);animation:cidButtonShine 3.4s ease-in-out infinite}.cid-ai-loader{animation:cidLoader 1.35s ease-in-out infinite}.cid-suggestion-card{animation:cidCardIn .32s cubic-bezier(.22,1,.36,1) both}.cid-suggestion-card:nth-child(2){animation-delay:.06s}.cid-suggestion-card:nth-child(3){animation-delay:.12s}.cid-suggestion-card:nth-child(4){animation-delay:.18s}
+@media(prefers-reduced-motion:reduce){.cid-ai-orb,.cid-ai-brain,.cid-ai-button-shine,.cid-ai-loader,.cid-suggestion-card{animation:none!important}}

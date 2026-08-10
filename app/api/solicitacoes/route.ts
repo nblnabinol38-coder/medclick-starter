@@ -227,9 +227,6 @@ function validateBody(body: CreateRequestBody) {
     "cpf",
     "birthDate",
     "motherName",
-    "phone",
-    "email",
-    "address",
     "documentType",
     "symptoms",
     "unitType",
@@ -253,14 +250,24 @@ function validateBody(body: CreateRequestBody) {
     return "Informe um CPF válido.";
   }
 
-  const email = body.email?.trim().toLowerCase() ?? "";
+  const needsUnimedPrescriptionContact =
+    body.documentType === "RECEITA" &&
+    body.providerNetwork === "UNIMED";
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return "Informe um e-mail válido.";
-  }
+  if (needsUnimedPrescriptionContact) {
+    const email = body.email?.trim().toLowerCase() ?? "";
 
-  if (normalizePhone(body.phone ?? "").length < 10) {
-    return "Informe um WhatsApp válido.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return "Informe um e-mail válido para a Receita Médica Unimed.";
+    }
+
+    if (normalizePhone(body.phone ?? "").length < 10) {
+      return "Informe um telefone válido para a Receita Médica Unimed.";
+    }
+
+    if (!body.address?.trim() || !body.city?.trim() || !body.state?.trim() || !body.postalCode?.trim()) {
+      return "Informe endereço residencial, cidade, UF e CEP para a Receita Médica Unimed.";
+    }
   }
 
   if (
@@ -371,7 +378,9 @@ export async function POST(request: Request) {
     }
 
     const normalizedCpf = normalizeCpf(body.cpf!);
-    const normalizedPhone = normalizePhone(body.phone!);
+    const normalizedPhone = normalizePhone(body.phone ?? "");
+    const normalizedEmail = body.email?.trim().toLowerCase() ?? "";
+    const normalizedAddress = body.address?.trim() ?? "";
     const birthDate = new Date(`${body.birthDate!}T12:00:00`);
 
     if (Number.isNaN(birthDate.getTime())) {
@@ -415,14 +424,14 @@ export async function POST(request: Request) {
           fullName: body.fullName!.trim(),
           birthDate,
           motherName: body.motherName!.trim(),
-          phone: normalizedPhone,
-          email: body.email!.trim().toLowerCase(),
-          address: body.address!.trim(),
-          city: normalizeText(body.city),
-          state: normalizeText(body.state)?.toUpperCase() ?? null,
-          postalCode: normalizeText(body.postalCode),
+          ...(normalizedPhone ? { phone: normalizedPhone } : {}),
+          ...(normalizedEmail ? { email: normalizedEmail } : {}),
+          ...(normalizedAddress ? { address: normalizedAddress } : {}),
+          ...(body.city?.trim() ? { city: normalizeText(body.city) } : {}),
+          ...(body.state?.trim() ? { state: normalizeText(body.state)?.toUpperCase() ?? null } : {}),
+          ...(body.postalCode?.trim() ? { postalCode: normalizeText(body.postalCode) } : {}),
           active: true,
-          ...(body.email!.trim().toLowerCase() ===
+          ...(normalizedEmail && normalizedEmail ===
           session.email.toLowerCase()
             ? {
                 userId: session.userId,
@@ -436,13 +445,13 @@ export async function POST(request: Request) {
           birthDate,
           motherName: body.motherName!.trim(),
           phone: normalizedPhone,
-          email: body.email!.trim().toLowerCase(),
-          address: body.address!.trim(),
+          email: normalizedEmail,
+          address: normalizedAddress,
           city: normalizeText(body.city),
           state: normalizeText(body.state)?.toUpperCase() ?? null,
           postalCode: normalizeText(body.postalCode),
           active: true,
-          ...(body.email!.trim().toLowerCase() ===
+          ...(normalizedEmail && normalizedEmail ===
           session.email.toLowerCase()
             ? {
                 userId: session.userId,

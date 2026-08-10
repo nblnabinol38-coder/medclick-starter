@@ -1,0 +1,29 @@
+MEDCLICK V56 — EXPERIÊNCIA PREMIUM + ASSISTENTE CID
+
+Principais ajustes:
+- Botão Ajuda NÃO abre sozinho. O painel de suporte só aparece após clique/toque do usuário.
+- WhatsApp centralizado em +55 11 91862-2785 (5511918622785).
+- Painel administrativo continua sem botão Ajuda.
+- Formulário de solicitação otimizado para celular.
+- Removido campo de horário desejado para reduzir atrito.
+- CID manual fica recolhido em "Já sabe o CID? Informar manualmente".
+- Fluxo principal do CID: sintomas -> Analisar com IA -> sugestões -> usuário escolhe uma opção.
+- Assistente CID usa OpenAI Responses API com Structured Outputs e mensagens específicas para chave inválida, cota e modelo.
+- Sugestões não são aplicadas automaticamente e exigem validação profissional.
+- Imagem/atmosfera visual MedClick adicionada globalmente com documento, selo, brilho, partículas e movimentos infinitos discretos.
+- Microanimações de entrada em seções e cards.
+
+Variáveis Vercel necessárias para IA:
+OPENAI_API_KEY=<sua chave>
+OPENAI_CID_MODEL=gpt-5-mini
+
+IMPORTANTE: após alterar variáveis na Vercel, faça novo Redeploy.
+
+Antes de publicar:
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run build
+
+Se a IA retornar erro de cota, verifique o faturamento/créditos da API OpenAI; ChatGPT Plus e API são cobranças separadas.

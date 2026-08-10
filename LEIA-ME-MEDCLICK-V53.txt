@@ -2,7 +2,7 @@ MEDCLICK V53 — CORREÇÃO DEFINITIVA DO WHATSAPP
 
 - Número correto de suporte: +55 11 91862-2785
 - Link usado pelo sistema: https://wa.me/5511918622785
-- Número antigo +55 11 92602-9855 / 5511926029855 removido do projeto inteiro.
+- Número de suporte centralizado em lib/support.ts.
 - Footer corrigido: texto exibido e link agora usam o mesmo número correto.
 - Botão flutuante Ajuda usa configuração centralizada em lib/support.ts.
 - Tela de cadastro aguardando usa a mesma configuração centralizada.

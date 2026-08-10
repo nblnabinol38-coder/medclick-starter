@@ -2,7 +2,7 @@
 
 import { MessageCircle, Sparkles, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { supportWhatsAppUrl } from "@/lib/support";
 
@@ -19,11 +19,6 @@ export default function WhatsAppUltraButton({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setOpen(true), 5000);
-    return () => window.clearTimeout(timer);
-  }, []);
-
   const href = supportWhatsAppUrl(message);
 
   // O painel administrativo não exibe o botão de ajuda.
@@ -35,8 +30,8 @@ export default function WhatsAppUltraButton({
     <div
       className={`fixed z-[9999] ${
         compact
-          ? "bottom-4 right-4"
-          : "bottom-5 right-5 sm:bottom-7 sm:right-7"
+          ? "bottom-3 right-3 sm:bottom-4 sm:right-4"
+          : "bottom-3 right-3 sm:bottom-7 sm:right-7"
       }`}
     >
       {open && (
@@ -86,7 +81,7 @@ export default function WhatsAppUltraButton({
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="wa-float group relative flex min-h-14 items-center justify-center gap-2 overflow-visible rounded-full bg-gradient-to-r from-emerald-500 via-green-500 to-green-600 px-5 font-black text-white shadow-[0_18px_48px_rgba(16,185,129,.42)] transition duration-300 hover:-translate-y-1 hover:scale-105"
+        className="wa-float group relative flex min-h-12 sm:min-h-14 items-center justify-center gap-2 overflow-visible rounded-full bg-gradient-to-r from-emerald-500 via-green-500 to-green-600 px-4 sm:px-5 font-black text-white shadow-[0_18px_48px_rgba(16,185,129,.42)] transition duration-300 hover:-translate-y-1 hover:scale-105"
         aria-label={open ? "Fechar ajuda" : "Abrir ajuda"}
         aria-expanded={open}
       >

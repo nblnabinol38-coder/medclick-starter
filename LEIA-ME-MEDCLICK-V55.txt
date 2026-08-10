@@ -1,0 +1,23 @@
+MEDCLICK V55 — FORMULÁRIO OTIMIZADO
+
+Atualizações desta versão:
+- Formulário reorganizado para priorizar dados essenciais do paciente.
+- Dados básicos do paciente: nome, CPF, nascimento e nome da mãe.
+- E-mail, telefone, endereço residencial, cidade, UF e CEP aparecem somente em Receita Médica Unimed.
+- Informações da unidade simplificadas: nome da unidade, bairro, cidade e UF.
+- Campo de CID ganhou Assistente de CID opcional com sugestões por sintomas.
+- As sugestões de CID são apoio para revisão profissional e não substituem avaliação médica.
+- Para ativar o Assistente de CID, configure OPENAI_API_KEY na Vercel. OPENAI_CID_MODEL pode permanecer gpt-5-mini.
+- WhatsApp de suporte mantido em +55 11 91862-2785.
+- Painel administrativo permanece sem botão Ajuda.
+
+Após substituir o projeto, preserve seu .env e execute:
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run build
+
+Se usar o Assistente de CID, adicione também na Vercel:
+OPENAI_API_KEY=<sua chave>
+OPENAI_CID_MODEL=gpt-5-mini

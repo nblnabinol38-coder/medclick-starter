@@ -1,0 +1,27 @@
+MEDCLICK V57 — FORMULÁRIO PREMIUM + ASSISTENTE CID
+
+Principais ajustes desta versão:
+- Fluxo visual reorganizado: paciente -> unidade -> detalhes do documento -> sintomas/IA -> revisão.
+- Dados de contato/endereço residencial aparecem somente na Receita Médica Unimed.
+- Unidade pede somente nome da unidade, bairro, cidade e UF.
+- CID manual fica recolhido em "Já sabe o CID? Informar manualmente".
+- Assistente CID usa sintomas como entrada e apresenta até 4 sugestões clicáveis; nenhuma opção é aplicada automaticamente.
+- API: /api/cid/sugerir usando OPENAI_API_KEY e OPENAI_CID_MODEL (padrão gpt-5-mini).
+- Botão Ajuda começa fechado e só abre após clique/toque.
+- WhatsApp centralizado em +55 11 91862-2785 (5511918622785).
+- Botão Ajuda oculto em todas as rotas /admin.
+- Atmosfera visual global e animações contínuas discretas, respeitando prefers-reduced-motion.
+
+Variáveis necessárias na Vercel:
+OPENAI_API_KEY=<sua chave>
+OPENAI_CID_MODEL=gpt-5-mini
+SESSION_SECRET=<mínimo 32 caracteres>
+DATABASE_URL=<sua URL>
+DIRECT_URL=<sua URL direta>
+
+Validação local:
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run build
