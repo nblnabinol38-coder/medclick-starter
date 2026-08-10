@@ -30,6 +30,10 @@ export async function POST(
   context: RouteContext,
 ) {
   try {
+    // =====================================================
+    // 1. VALIDA SESSÃO ADMINISTRATIVA
+    // =====================================================
+
     const session = await readAdminSession();
 
     if (!session) {
@@ -39,13 +43,19 @@ export async function POST(
           message:
             "Sua sessão administrativa expirou. Entre novamente.",
         },
-        { status: 401 },
+        {
+          status: 401,
+        },
       );
     }
 
+    // =====================================================
+    // 2. IDENTIFICA A SOLICITAÇÃO
+    // =====================================================
+
     const { id } = await context.params;
-    const identifier =
-      decodeURIComponent(id).trim();
+
+    const identifier = decodeURIComponent(id).trim();
 
     if (!identifier) {
       return NextResponse.json(
@@ -53,7 +63,9 @@ export async function POST(
           success: false,
           message: "Solicitação não informada.",
         },
-        { status: 400 },
+        {
+          status: 400,
+        },
       );
     }
 
@@ -61,23 +73,32 @@ export async function POST(
       await prisma.serviceRequest.findFirst({
         where: {
           OR: [
-            { id: identifier },
-            { protocol: identifier },
+            {
+              id: identifier,
+            },
+            {
+              protocol: identifier,
+            },
           ],
         },
+
         select: {
           id: true,
           protocol: true,
+
           documents: {
             where: {
               type: DocumentFileType.PREVIEW,
             },
+
             select: {
               version: true,
             },
+
             orderBy: {
               version: "desc",
             },
+
             take: 1,
           },
         },
@@ -89,11 +110,18 @@ export async function POST(
           success: false,
           message: "Solicitação não encontrada.",
         },
-        { status: 404 },
+        {
+          status: 404,
+        },
       );
     }
 
+    // =====================================================
+    // 3. LÊ O PDF ENVIADO
+    // =====================================================
+
     const formData = await request.formData();
+
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
@@ -102,7 +130,9 @@ export async function POST(
           success: false,
           message: "Selecione o PDF da prévia.",
         },
-        { status: 400 },
+        {
+          status: 400,
+        },
       );
     }
 
@@ -116,7 +146,9 @@ export async function POST(
           success: false,
           message: "A prévia precisa estar em PDF.",
         },
-        { status: 400 },
+        {
+          status: 400,
+        },
       );
     }
 
@@ -126,7 +158,9 @@ export async function POST(
           success: false,
           message: "O PDF enviado está vazio.",
         },
-        { status: 400 },
+        {
+          status: 400,
+        },
       );
     }
 
@@ -137,20 +171,32 @@ export async function POST(
           message:
             "Nesta etapa, envie uma prévia de até 4 MB.",
         },
-        { status: 400 },
+        {
+          status: 400,
+        },
       );
     }
 
-    const version =
-      (serviceRequest.documents[0]?.version ?? 0) + 1;
+    // =====================================================
+    // 4. DEFINE VERSÃO E NOME DO ARQUIVO
+    // =====================================================
 
-    const filename = `${safePart(
-      serviceRequest.protocol,
-    )}-previa-v${version}-${Date.now()}.pdf`;
+    const currentVersion =
+      serviceRequest.documents[0]?.version ?? 0;
 
-    const pathname = `medclick/previews/${safePart(
+    const version = currentVersion + 1;
+
+    const safeProtocol = safePart(
       serviceRequest.protocol,
-    )}/${filename}`;
+    );
+
+    const filename = `${safeProtocol}-previa-v${version}-${Date.now()}.pdf`;
+
+    const pathname = `medclick/previews/${safeProtocol}/${filename}`;
+
+    // =====================================================
+    // 5. ENVIA PDF PARA O VERCEL BLOB
+    // =====================================================
 
     const blob = await put(
       pathname,
@@ -162,73 +208,115 @@ export async function POST(
       },
     );
 
+    // =====================================================
+    // 6. DESATIVA PRÉVIAS ANTIGAS
+    //
+    // Sem transaction interativa.
+    // Isso evita o erro:
+    // "Unable to start a transaction in the given time"
+    // =====================================================
+
+    await prisma.documentFile.updateMany({
+      where: {
+        requestId: serviceRequest.id,
+        type: DocumentFileType.PREVIEW,
+        active: true,
+      },
+
+      data: {
+        active: false,
+      },
+    });
+
+    // =====================================================
+    // 7. REGISTRA A NOVA PRÉVIA
+    // =====================================================
+
     const documentFile =
-      await prisma.$transaction(async (tx) => {
-        await tx.documentFile.updateMany({
-          where: {
-            requestId: serviceRequest.id,
-            type: DocumentFileType.PREVIEW,
-            active: true,
-          },
-          data: {
-            active: false,
-          },
-        });
+      await prisma.documentFile.create({
+        data: {
+          requestId: serviceRequest.id,
 
-        const created =
-          await tx.documentFile.create({
-            data: {
-              requestId: serviceRequest.id,
-              uploadedById: session.userId,
-              type: DocumentFileType.PREVIEW,
-              originalName: file.name,
-              storageKey: blob.pathname,
-              mimeType: "application/pdf",
-              sizeBytes: file.size,
-              version,
-              active: true,
-            },
-            select: {
-              id: true,
-              requestId: true,
-              type: true,
-              originalName: true,
-              storageKey: true,
-              mimeType: true,
-              sizeBytes: true,
-              version: true,
-              active: true,
-              createdAt: true,
-            },
-          });
+          uploadedById: session.userId,
 
-        await tx.serviceRequest.update({
-          where: {
-            id: serviceRequest.id,
-          },
-          data: {
-            status: RequestStatus.PREVIEW_READY,
-          },
-        });
+          type: DocumentFileType.PREVIEW,
 
-        await tx.statusEvent.create({
-          data: {
-            requestId: serviceRequest.id,
-            status: RequestStatus.PREVIEW_READY,
-            note:
-              "Prévia em PDF anexada pelo administrador.",
-            visibleToPatient: false,
-            changedById: session.userId,
-          },
-        });
+          originalName: file.name,
 
-        return created;
+          storageKey: blob.pathname,
+
+          mimeType: "application/pdf",
+
+          sizeBytes: file.size,
+
+          version,
+
+          active: true,
+        },
+
+        select: {
+          id: true,
+          requestId: true,
+          type: true,
+          originalName: true,
+          storageKey: true,
+          mimeType: true,
+          sizeBytes: true,
+          version: true,
+          active: true,
+          createdAt: true,
+        },
       });
+
+    // =====================================================
+    // 8. ATUALIZA STATUS DA SOLICITAÇÃO
+    // =====================================================
+
+    await prisma.serviceRequest.update({
+      where: {
+        id: serviceRequest.id,
+      },
+
+      data: {
+        status: RequestStatus.PREVIEW_READY,
+      },
+    });
+
+    // =====================================================
+    // 9. REGISTRA NO HISTÓRICO
+    // =====================================================
+
+    await prisma.statusEvent.create({
+      data: {
+        requestId: serviceRequest.id,
+
+        status: RequestStatus.PREVIEW_READY,
+
+        note:
+          "Prévia em PDF anexada pelo administrador.",
+
+        visibleToPatient: false,
+
+        changedById: session.userId,
+      },
+    });
+
+    // =====================================================
+    // 10. RETORNO PARA O FRONTEND
+    // =====================================================
 
     return NextResponse.json({
       success: true,
-      message: "Prévia anexada com sucesso.",
-      documentFile,
+
+      message:
+        "Prévia anexada com sucesso.",
+
+      documentFile: {
+        ...documentFile,
+
+        blobPathname:
+          blob.pathname,
+      },
     });
   } catch (error) {
     console.error(
@@ -236,15 +324,21 @@ export async function POST(
       error,
     );
 
+    const detail =
+      error instanceof Error
+        ? error.message
+        : "Erro interno desconhecido.";
+
     return NextResponse.json(
       {
         success: false,
+
         message:
-          error instanceof Error
-            ? `Não foi possível anexar a prévia: ${error.message}`
-            : "Não foi possível anexar a prévia.",
+          `Não foi possível anexar a prévia: ${detail}`,
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 }
