@@ -892,7 +892,7 @@ export default function AdminRequestDetailPage() {
         "Documento final anexado com sucesso.",
       );
 
-      await loadRequest();
+      await loadRequest(true);
     } catch (requestError) {
       setFinalDocumentError(
         requestError instanceof Error
@@ -1222,7 +1222,7 @@ export default function AdminRequestDetailPage() {
         !sendingFinalDocument &&
         !finalizingRequest
       ) {
-        void loadRequest(false);
+        void loadRequest(true);
       }
     };
 
@@ -1245,7 +1245,7 @@ export default function AdminRequestDetailPage() {
     );
 
     const onFocus = () => {
-      void loadRequest(false);
+      void loadRequest(true);
     };
 
     window.addEventListener(
