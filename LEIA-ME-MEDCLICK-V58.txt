@@ -1,0 +1,23 @@
+MEDCLICK V58 — CID SIMPLIFICADO + ALERTAS SONOROS ADMIN
+
+ALTERAÇÕES
+- IA de CID removida do formulário por enquanto.
+- Paciente pode informar o CID caso saiba OU descrever sintomas/motivo.
+- Sintomas aceitos a partir de 5 caracteres quando não houver CID.
+- Rota /api/cid/sugerir removida desta versão.
+- Painel administrativo recebeu central de alertas sonoros.
+- Novo cadastro PENDING: som exclusivo de liberação.
+- Nova solicitação de Atestado: som próprio.
+- Nova solicitação de Receita: som próprio.
+- Nova solicitação de Laudo: som próprio.
+- Alertas aparecem em tempo real no topo do painel e som pode ser ligado/desligado.
+- O navegador exige uma interação inicial (clique/toque/tecla) para liberar áudio; após isso, os alertas funcionam automaticamente enquanto o painel estiver aberto.
+- Painel administrativo continua sem botão Ajuda.
+- WhatsApp de suporte permanece +55 11 91862-2785.
+
+VALIDAÇÃO RECOMENDADA
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run build

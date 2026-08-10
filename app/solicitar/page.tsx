@@ -19,10 +19,6 @@ import {
   HeartPulse,
   Hospital,
   Building2,
-  BrainCircuit,
-  WandSparkles,
-  PenLine,
-  ChevronDown,
   MapPin,
   LoaderCircle,
   LockKeyhole,
@@ -220,12 +216,6 @@ function SolicitarPageContent() {
 
   const [cidValue, setCidValue] = useState("");
   const [symptomsText, setSymptomsText] = useState("");
-  const [cidLoading, setCidLoading] = useState(false);
-  const [cidMessage, setCidMessage] = useState("");
-  const [cidSuggestions, setCidSuggestions] = useState<
-    Array<{ code: string; description: string; rationale: string }>
-  >([]);
-
   const [submitting, setSubmitting] =
     useState(false);
 
@@ -351,48 +341,6 @@ function SolicitarPageContent() {
 
   const needsUnimedPrescriptionContact =
     service === "PRESCRIPTION" && providerSelected === "UNIMED";
-
-  async function suggestCid() {
-    if (symptomsText.trim().length < 8) {
-      setCidMessage("Descreva os sintomas com um pouco mais de detalhe para receber sugestões.");
-      return;
-    }
-
-    try {
-      setCidLoading(true);
-      setCidMessage("");
-      setCidSuggestions([]);
-
-      const response = await fetch("/api/cid/sugerir", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symptoms: symptomsText }),
-      });
-
-      const data = (await response.json()) as {
-        success?: boolean;
-        message?: string;
-        suggestions?: Array<{ code: string; description: string; rationale: string }>;
-      };
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || "Não foi possível gerar sugestões de CID agora.");
-      }
-
-      setCidSuggestions(data.suggestions ?? []);
-      if (!(data.suggestions ?? []).length) {
-        setCidMessage("Nenhuma sugestão foi encontrada. Você pode informar o CID manualmente.");
-      }
-    } catch (requestError) {
-      setCidMessage(
-        requestError instanceof Error
-          ? requestError.message
-          : "Não foi possível gerar sugestões de CID agora.",
-      );
-    } finally {
-      setCidLoading(false);
-    }
-  }
 
   function selectProvider(
     provider: ProviderType,
@@ -1346,15 +1294,11 @@ function SolicitarPageContent() {
                       ))}
                     </div>
 
-                    <CidAssistant
+                    <ClinicalInfoFields
                       symptoms={symptomsText}
                       onSymptomsChange={setSymptomsText}
                       cid={cidValue}
                       onCidChange={setCidValue}
-                      loading={cidLoading}
-                      message={cidMessage}
-                      suggestions={cidSuggestions}
-                      onSuggest={suggestCid}
                     />
                   </div>
                 )}
@@ -1465,15 +1409,11 @@ function SolicitarPageContent() {
                       placeholder="Explique a finalidade e as informações que precisam ser analisadas."
                     />
 
-                    <CidAssistant
+                    <ClinicalInfoFields
                       symptoms={symptomsText}
                       onSymptomsChange={setSymptomsText}
                       cid={cidValue}
                       onCidChange={setCidValue}
-                      loading={cidLoading}
-                      message={cidMessage}
-                      suggestions={cidSuggestions}
-                      onSuggest={suggestCid}
                     />
 
                     <TextArea
@@ -2047,206 +1987,89 @@ function ControlledTextArea({
   );
 }
 
-function CidAssistant({
+function ClinicalInfoFields({
   symptoms,
   onSymptomsChange,
   cid,
   onCidChange,
-  loading,
-  message,
-  suggestions,
-  onSuggest,
 }: {
   symptoms: string;
   onSymptomsChange: (value: string) => void;
   cid: string;
   onCidChange: (value: string) => void;
-  loading: boolean;
-  message: string;
-  suggestions: Array<{ code: string; description: string; rationale: string }>;
-  onSuggest: () => void;
 }) {
-  const [manualOpen, setManualOpen] = useState(false);
-  const hasSuggestions = suggestions.length > 0;
-
   return (
-    <div className="cid-ai-shell mt-5 overflow-hidden rounded-[28px] border border-cyan-100 bg-white shadow-[0_24px_70px_rgba(8,145,178,.10)]">
-      <div className="cid-ai-hero relative overflow-hidden bg-gradient-to-br from-[#052b3a] via-[#063e49] to-[#087a70] px-4 py-5 text-white sm:px-5">
-        <div className="cid-ai-orb cid-ai-orb-one" />
-        <div className="cid-ai-orb cid-ai-orb-two" />
+    <div className="mt-5 overflow-hidden rounded-[26px] border border-teal-100 bg-white shadow-[0_20px_60px_rgba(15,118,110,.09)]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#063746] via-[#075565] to-[#0f766e] px-4 py-4 text-white sm:px-5">
+        <div className="absolute -right-10 -top-12 h-36 w-36 rounded-full bg-cyan-300/10 blur-2xl" />
+        <div className="absolute -bottom-14 left-1/3 h-32 w-32 rounded-full bg-emerald-300/10 blur-2xl" />
         <div className="relative z-10 flex items-start gap-3">
-          <span className="cid-ai-brain flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-cyan-100 shadow-[0_12px_35px_rgba(13,148,136,.28)] backdrop-blur">
-            <BrainCircuit size={22} />
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-cyan-100 shadow-lg backdrop-blur">
+            <HeartPulse size={21} />
           </span>
-          <div className="min-w-0 flex-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-200/20 bg-cyan-200/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-[.16em] text-cyan-100">
-              <Sparkles size={10} /> IA de apoio clínico
-            </span>
-            <h3 className="mt-2 text-[15px] font-black tracking-tight sm:text-base">
-              Conte o que está sentindo
-            </h3>
-            <p className="mt-1 max-w-xl text-[10px] leading-5 text-cyan-50/75">
-              A IA analisa o relato e mostra possíveis CIDs relacionados. Você escolhe uma sugestão; nada é aplicado automaticamente.
+          <div>
+            <span className="text-[8px] font-black uppercase tracking-[.16em] text-cyan-100/80">Informações clínicas</span>
+            <h3 className="mt-1 text-[15px] font-black">CID ou sintomas</h3>
+            <p className="mt-1 text-[10px] leading-5 text-cyan-50/75">
+              Se você souber o CID, informe. Caso não saiba, descreva os sintomas ou o motivo da solicitação.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="p-4 sm:p-5">
+      <div className="grid gap-4 p-4 sm:p-5">
         <label className="block">
           <span className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-wide text-slate-600">
             <span>Sintomas / motivo</span>
-            <span className="normal-case font-bold text-slate-400">mín. 10 caracteres</span>
+            <span className="normal-case font-bold text-slate-400">opcional se informar CID</span>
           </span>
-          <div className="relative mt-2 overflow-hidden rounded-[20px] border border-slate-200 bg-slate-50 transition focus-within:border-cyan-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-cyan-100/60">
-            <textarea
-              value={symptoms}
-              onChange={(event) => {
-                onSymptomsChange(event.target.value);
-                if (suggestions.length) onCidChange("");
-              }}
-              rows={5}
-              placeholder="Ex.: estou com dor de garganta há 2 dias, febre, dificuldade para engolir e dor no corpo..."
-              className="w-full resize-none bg-transparent px-4 pb-12 pt-4 text-[13px] leading-6 text-slate-800 outline-none placeholder:text-slate-400"
-            />
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-2 text-[9px] text-slate-400">
-              <span>Descreva duração, intensidade e sintomas associados.</span>
-              <span className="font-black">{symptoms.trim().length}</span>
-            </div>
-          </div>
+          <textarea
+            value={symptoms}
+            onChange={(event) => onSymptomsChange(event.target.value)}
+            rows={5}
+            placeholder="Ex.: dor de garganta, febre, dor no corpo há 2 dias..."
+            className="mt-2 w-full resize-none rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-300 focus:bg-white focus:ring-4 focus:ring-teal-100/60"
+          />
+          <span className="mt-1.5 block text-[9px] leading-4 text-slate-400">
+            Se não souber o CID, descreva com suas palavras. Mínimo de 5 caracteres quando este campo for usado sozinho.
+          </span>
         </label>
 
-        <button
-          type="button"
-          onClick={onSuggest}
-          disabled={loading || symptoms.trim().length < 10}
-          className="cid-ai-button group relative mt-3 flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-[18px] bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 px-4 text-[12px] font-black text-white shadow-[0_16px_35px_rgba(13,148,136,.25)] transition enabled:hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          <span className="cid-ai-button-shine" />
-          {loading ? (
-            <>
-              <LoaderCircle size={17} className="animate-spin" />
-              IA analisando sintomas...
-            </>
-          ) : (
-            <>
-              <WandSparkles size={17} className="transition group-hover:rotate-6 group-hover:scale-110" />
-              Analisar sintomas e sugerir CID
-            </>
-          )}
-        </button>
-
-        {loading && (
-          <div className="mt-3 overflow-hidden rounded-2xl border border-cyan-100 bg-cyan-50/70 p-3">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-cyan-800">
-              <BrainCircuit size={14} /> Comparando o relato com possibilidades de codificação clínica...
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cyan-100">
-              <span className="cid-ai-loader block h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500" />
-            </div>
-          </div>
-        )}
-
-        {message && !loading && (
-          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-[10px] font-semibold leading-5 text-amber-800">
-            {message}
-          </div>
-        )}
-
-        {hasSuggestions && !loading && (
-          <div className="mt-4">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <div>
-                <strong className="block text-[11px] font-black text-slate-900">Sugestões encontradas</strong>
-                <span className="text-[9px] text-slate-500">Toque em uma opção para selecionar.</span>
-              </div>
-              <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[8px] font-black uppercase tracking-wide text-teal-700">
-                {suggestions.length} opções
-              </span>
-            </div>
-
-            <div className="grid gap-2.5">
-              {suggestions.map((item, index) => {
-                const selected = cid === item.code;
-                return (
-                  <button
-                    key={`${item.code}-${index}`}
-                    type="button"
-                    onClick={() => {
-                      onCidChange(item.code);
-                      setManualOpen(false);
-                    }}
-                    className={`cid-suggestion-card relative overflow-hidden rounded-[20px] border p-4 text-left transition ${
-                      selected
-                        ? "border-teal-400 bg-gradient-to-br from-teal-50 to-cyan-50 ring-2 ring-teal-100"
-                        : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-lg"
-                    }`}
-                  >
-                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-[10px] font-black text-slate-400">
-                      {selected ? <CheckCircle2 size={16} className="text-teal-600" /> : index + 1}
-                    </span>
-                    <div className="pr-9">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-lg bg-slate-950 px-2.5 py-1.5 font-mono text-[11px] font-black text-white">
-                          {item.code}
-                        </span>
-                        {selected && (
-                          <span className="text-[8px] font-black uppercase tracking-wide text-teal-700">Selecionado</span>
-                        )}
-                      </div>
-                      <strong className="mt-2 block text-[12px] font-black text-slate-900">{item.description}</strong>
-                      <span className="mt-1 block text-[9.5px] leading-4 text-slate-500">{item.rationale}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {cid && (
-          <div className="mt-3 flex items-center gap-3 rounded-[18px] border border-emerald-200 bg-emerald-50 px-3.5 py-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white">
-              <Check size={17} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <span className="block text-[8px] font-black uppercase tracking-[.14em] text-emerald-700">CID selecionado</span>
-              <strong className="mt-0.5 block font-mono text-[13px] text-slate-950">{cid}</strong>
-            </div>
-            <button type="button" onClick={() => onCidChange("")} className="rounded-lg px-2 py-1 text-[9px] font-black text-slate-500 hover:bg-white">
-              Limpar
-            </button>
-          </div>
-        )}
-
-        <div className="mt-4 border-t border-slate-100 pt-3">
-          <button
-            type="button"
-            onClick={() => setManualOpen((value) => !value)}
-            className="flex w-full items-center justify-between gap-3 rounded-xl px-1 py-2 text-left"
-          >
-            <span className="flex items-center gap-2 text-[10px] font-black text-slate-600">
-              <PenLine size={14} className="text-slate-400" /> Já sabe o CID? Informar manualmente
-            </span>
-            <ChevronDown size={15} className={`text-slate-400 transition ${manualOpen ? "rotate-180" : ""}`} />
-          </button>
-
-          {manualOpen && (
-            <div className="other-patient-enter mt-2">
-              <ControlledField
-                label="CID, se souber"
-                value={cid}
-                onChange={onCidChange}
-                placeholder="Ex.: F41.1"
-              />
-            </div>
-          )}
+        <div className="flex items-center gap-3">
+          <span className="h-px flex-1 bg-slate-100" />
+          <span className="text-[8px] font-black uppercase tracking-[.14em] text-slate-400">ou</span>
+          <span className="h-px flex-1 bg-slate-100" />
         </div>
 
-        <p className="mt-3 flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-[8.5px] leading-4 text-slate-500">
-          <ShieldCheck size={13} className="mt-0.5 shrink-0 text-teal-600" />
-          As sugestões são apoio à codificação e precisam ser confirmadas por profissional habilitado antes de integrar qualquer documento clínico.
-        </p>
+        <label className="block">
+          <span className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-wide text-slate-600">
+            <span>CID, caso saiba</span>
+            <span className="normal-case font-bold text-slate-400">opcional</span>
+          </span>
+          <input
+            value={cid}
+            onChange={(event) => onCidChange(event.target.value.toUpperCase())}
+            placeholder="Ex.: F41.1"
+            className="mt-2 h-12 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 font-mono text-sm font-bold uppercase text-slate-800 outline-none transition placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 focus:border-teal-300 focus:bg-white focus:ring-4 focus:ring-teal-100/60"
+          />
+          <span className="mt-1.5 flex items-start gap-2 text-[9px] leading-4 text-slate-400">
+            <ShieldCheck size={12} className="mt-0.5 shrink-0 text-teal-600" />
+            Informe o CID somente se já souber. O preenchimento será revisado no atendimento.
+          </span>
+        </label>
+
+        {(cid.trim() || symptoms.trim()) && (
+          <div className="rounded-[18px] border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 px-3.5 py-3">
+            <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-wide text-emerald-700">
+              <CheckCircle2 size={14} /> Informação preenchida
+            </div>
+            <p className="mt-1 text-[10px] leading-5 text-slate-600">
+              {cid.trim()
+                ? `CID informado: ${cid.trim().toUpperCase()}`
+                : "Sintomas/motivo informados para análise do atendimento."}
+            </p>
+          </div>
+        )}
 
         <input type="hidden" name="cid" value={cid} />
         <input type="hidden" name="symptoms" value={symptoms} />
