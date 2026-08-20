@@ -14,6 +14,7 @@ import {
 type LoginBody = {
   email?: string;
   password?: string;
+  context?: "admin" | "patient";
 };
 
 export async function POST(request: Request) {
@@ -127,6 +128,21 @@ export async function POST(request: Request) {
           code: "INACTIVE",
           message:
             "Sua conta está temporariamente desativada.",
+        },
+        { status: 403 },
+      );
+    }
+
+    if (
+      body.context === "admin" &&
+      user.role !== "ADMIN" &&
+      user.role !== "DOCTOR"
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: "FORBIDDEN_ROLE",
+          message: "Esta conta não possui acesso administrativo.",
         },
         { status: 403 },
       );
